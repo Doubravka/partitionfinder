@@ -24,7 +24,7 @@
 from partfinder import logtools, util
 import os
 import numpy as np
-import cStringIO
+from io import StringIO
 from itertools import chain
 
 log = logtools.get_logger()
@@ -386,7 +386,7 @@ class Alignment(object):
             self.parse_stream(stream)
 
     def parse(self, text):
-        stream = cStringIO.StringIO(text)
+        stream = StringIO.StringIO(text)
         self.parse_stream(stream)
 
     def write(self, pth):
