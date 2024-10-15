@@ -271,7 +271,7 @@ class Parser(object):
 
     def parse_file(self, file_name):
         # this just reads in the config file into 's'
-        s = open(file_name, "rU").read()
+        s = open(file_name, "r").read()
         self.parse_configuration(s)
 
     def parse_configuration(self, s):

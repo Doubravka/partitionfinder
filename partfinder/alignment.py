@@ -382,7 +382,7 @@ class Alignment(object):
             log.error("Cannot find alignment file '%s'", pth)
             raise AlignmentError
 
-        with open(pth, "rU") as stream:
+        with open(pth, "r") as stream:
             self.parse_stream(stream)
 
     def parse(self, text):
