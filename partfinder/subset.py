@@ -15,7 +15,8 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, alignment, subset_ops
+from partfinder import logtools, subset_ops
+from partfinder.alignment import SubsetAlignment, Alignment
 
 log = logtools.get_logger()
 
@@ -354,7 +355,7 @@ class Subset(object):
 
     def make_alignment(self, cfg, alignment):
         # Make an Alignment from the source, using this subset
-        sub_alignment = alignment.SubsetAlignment(alignment, self)
+        sub_alignment = SubsetAlignment(alignment, self)
 
         sub_path = os.path.join(cfg.phylofiles_path, self.subset_id + ".phy")
         # Add it into the sub, so we keep it around
@@ -363,7 +364,7 @@ class Subset(object):
         # Maybe it is there already?
         if os.path.exists(sub_path):
             log.debug("Found existing alignment file %s" % sub_path)
-            old_align = alignment.Alignment()
+            old_align = Alignment()
             old_align.read(sub_path)
 
             # It had better be the same!
