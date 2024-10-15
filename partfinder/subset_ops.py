@@ -21,10 +21,8 @@ log = logtools.get_logger()
 
 import hashlib
 import pickle
-from util import get_aic, get_aicc, get_bic
+from partfinder.util import get_aic, get_aicc, get_bic, PartitionFinderError
 from scipy.stats import chi2
-from util import PartitionFinderError
-
 
 class AnalysisError(PartitionFinderError):
     pass

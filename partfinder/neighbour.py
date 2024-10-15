@@ -15,12 +15,12 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-import subset_ops
-import scheme
+from partfinder import subset_ops, scheme
+from partfinder.util import PartitionFinderError
+
 import numpy as np
 import scipy.spatial.distance
 import itertools
-from util import PartitionFinderError
 
 from partfinder import logtools
 

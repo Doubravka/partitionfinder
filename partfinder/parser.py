@@ -41,7 +41,7 @@ from pyparsing import (
 # ParserElement.verbose_stacktrace = True
 
 
-from util import PartitionFinderError
+from partfinder.util import PartitionFinderError
 
 
 class ParserError(Exception):

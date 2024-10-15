@@ -19,7 +19,7 @@
 from partfinder import logtools
 from util import memoize
 from config import the_config
-from model_utils import get_num_params
+from model_utils import model_utils.get_num_params
 
 log = logtools.get_logger()
 
@@ -37,7 +37,7 @@ def get_model_difficulty(modelstring):
 
     elements = modelstring.split("+")
 
-    model_params = get_num_params(modelstring)
+    model_params = model_utils.get_num_params(modelstring)
 
     difficulty = 0
     if "G" in elements[1:]:

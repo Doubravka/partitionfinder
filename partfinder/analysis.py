@@ -15,29 +15,17 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, database, scheme, subset_ops, alignment, threadpool, results, util, raxml
+from partfinder.config import the_config
 
 log = logtools.get_logger()
-
 import os
 import shutil
-from database import Database
-
-from alignment import Alignment, SubsetAlignment
-import threadpool
-import scheme
-import subset_ops
-import results
 import threading
 import collections
-from config import the_config
-from util import PartitionFinderError, ExternalProgramError
-import util
-import raxml
 from shutil import copyfile
 
-
-class AnalysisError(PartitionFinderError):
+class AnalysisError(util.PartitionFinderError):
     pass
 
 
@@ -59,7 +47,7 @@ class Analysis(object):
 
         # Make some folders for the analysis
         the_config.make_output_folders()
-        the_config.database = Database(the_config)
+        the_config.database = database.Database(the_config)
 
         # Check for old analyses to see if we can use the old data
         the_config.check_for_old_config()
@@ -101,7 +89,7 @@ class Analysis(object):
 
     def make_alignment(self, source_alignment_path):
         # Make the alignment
-        self.alignment = Alignment()
+        self.alignment = alignment.Alignment()
         self.alignment.read(source_alignment_path)
 
         # TODO REMOVE -- this should be part of the checking procedure
@@ -109,7 +97,7 @@ class Analysis(object):
         self.alignment_path = os.path.join(the_config.start_tree_path, "source.phy")
         if os.path.exists(self.alignment_path):
             # Make sure it is the same
-            old_align = Alignment()
+            old_align = alignment.Alignment()
             old_align.read(self.alignment_path)
             if not old_align.same_as(self.alignment):
                 log.error(
@@ -151,7 +139,7 @@ class Analysis(object):
         # Begin by making a filtered alignment, containing ONLY those columns
         # that are defined in the subsets
         subset_with_everything = subset_ops.merge_subsets(the_config.user_subsets)
-        self.filtered_alignment = SubsetAlignment(
+        self.filtered_alignment = alignment.SubsetAlignment(
             self.alignment, subset_with_everything
         )
         self.filtered_alignment_path = os.path.join(
@@ -244,7 +232,7 @@ class Analysis(object):
                 the_config.cmdline_extras,
             )
             fabricate = False
-        except ExternalProgramError:
+        except util.ExternalProgramError:
             if not the_config.suppress_errors:
                 # In the Kmeans algorithm we suppress errors and "fabricate"
                 # subsets (we assume the error is because the subset is too

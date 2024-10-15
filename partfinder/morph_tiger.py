@@ -19,12 +19,6 @@ from partfinder import logtools
 
 log = logtools.get_logger()
 
-from alignment import Alignment
-import numpy as np
-from config import the_config
-from util import PartitionFinderError
-
-
 # Create a set partition for each column in the alignment
 def create_set_parts(alignment):
     log.debug("Creating set partitions")

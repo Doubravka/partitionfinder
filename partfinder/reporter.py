@@ -16,12 +16,9 @@
 # and conditions as well.
 
 from partfinder import logtools
-import pandas
+from partfinder.config import the_config
 
 log = logtools.get_logger()
-from config import the_config
-from model_utils import *
-
 
 import os
 

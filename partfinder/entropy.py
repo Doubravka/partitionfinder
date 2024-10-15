@@ -15,14 +15,12 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, util
+from partfinder.config import the_config
 
 log = logtools.get_logger()
 
-from alignment import Alignment
 import numpy as np
-from config import the_config
-from util import PartitionFinderError
 
 
 # defining a new function 'entropy_calc' which takes as input a 1D array p
@@ -69,7 +67,7 @@ def sitewise_entropies(alignment):
         column_entropy = get_morph_entropies(alignment)
     else:
         log.error("Unknown datatype '%s'" % the_config.datatype)
-        raise PartitionFinderError
+        raise util.PartitionFinderError
 
     if the_config.datatype != "morphology":
         states = states.T

@@ -24,9 +24,6 @@ import numpy
 import tables
 from itertools import combinations
 
-import raxml_models
-import phyml_models
-
 int_type = numpy.int32
 float_type = numpy.float32
 

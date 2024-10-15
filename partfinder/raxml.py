@@ -15,17 +15,14 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, util, database, reporter, raxml_models
+from partfinder.config import the_config
 
 log = logtools.get_logger()
 
 import os
 import sys
 import fnmatch
-import util
-from database import DataLayout, DataRecord
-from reporter import write_raxml_partitions
-from config import the_config
 
 from pyparsing import (
     Word,
@@ -39,8 +36,6 @@ from pyparsing import (
     restOfLine,
     Optional,
 )
-
-import raxml_models as models
 
 _protein_letters = "ARNDCQEGHILKMFPSTWYV"
 _dna_letters = "ATCG"
@@ -71,7 +66,7 @@ def make_data_layout(cfg):
         letters = _dna_letters
     elif cfg.datatype == "morphology":
         letters = _morph_chars
-    return DataLayout(letters)
+    return database.DataLayout(letters)
 
 
 def run_raxml(command):
@@ -96,7 +91,7 @@ def write_partition_file(scheme, alignment_path):
     partition_filehandle = open(partition_filepath, "w")
     sorted_subsets = [sub for sub in scheme]
     sorted_subsets.sort(key=lambda sub: min(sub.columns), reverse=False)
-    write_raxml_partitions(scheme, partition_filehandle, sorted_subsets, use_lg=True)
+    reporter.write_raxml_partitions(scheme, partition_filehandle, sorted_subsets, use_lg=True)
     return partition_filepath
 
 
@@ -131,7 +126,7 @@ def make_ml_topology(alignment_path, datatype, cmdline_extras, scheme, cpus):
             % (alignment_path, partition_file)
         )
     elif datatype == "morphology":
-        model = models.get_model_commandline(the_config.models[0])
+        model = raxml_models.get_model_commandline(the_config.models[0])
         log.info("Using the model specified in the .cfg file")
         command = "-f E -s '%s' %s -n fastTREE -p 123456789 %s" % (
             alignment_path,
@@ -216,7 +211,7 @@ def make_topology(alignment_path, datatype, cmdline_extras):
         # LOOK OUT: this relies on the assumption that we can only specify a single
         # model for morphology analyses...
         # choose a model for the data - necessary for RAxML to load the data properly
-        model = models.get_model_commandline(the_config.models[0])
+        model = raxml_models.get_model_commandline(the_config.models[0])
         command = "-y -s '%s' %s -K MK -n MPTREE -p 123456789 %s" % (
             alignment_path,
             model,
@@ -280,7 +275,7 @@ def make_branch_lengths(alignment_path, topology_path, datatype, cmdline_extras)
         # LOOK OUT: this relies on the assumption that we can only specify a single
         # model for morphology analyses...
         # choose a model for the data - necessary for RAxML to load the data properly
-        model = models.get_model_commandline(the_config.models[0])
+        model = raxml_models.get_model_commandline(the_config.models[0])
         log.info(
             "Estimating %s branch lengths on tree using RAxML", the_config.models[0]
         )
@@ -342,7 +337,7 @@ def analyse(model, alignment_path, tree_path, branchlengths, cmdline_extras):
 
     # Move it to a new name to stop raxml stomping on different model analyses
     # dupfile(alignment_path, analysis_path)
-    model_params = models.get_model_commandline(model)
+    model_params = raxml_models.get_model_commandline(model)
 
     if branchlengths == "linked":
         # constrain all branchlengths to be equal
@@ -414,7 +409,7 @@ def remove_files(aln_path, model):
     util.delete_files(pths)
 
 
-class RaxmlResult(DataRecord):
+class RaxmlResult(database.DataRecord):
     pass
 
 

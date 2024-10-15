@@ -16,12 +16,9 @@
 # and conditions as well.
 
 from partfinder import logtools
-import pandas as pd
-import os
-from config import the_config
+from partfinder.config import the_config
 
 log = logtools.get_logger()
-from util import PartitionFinderError
 
 
 def get_num_params(modelstring):

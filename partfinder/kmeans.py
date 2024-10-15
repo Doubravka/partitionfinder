@@ -15,7 +15,8 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, entropy, subset_ops, util, morph_tiger
+from partfinder.alignment import SubsetAlignment
 
 log = logtools.get_logger()
 
@@ -25,16 +26,6 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import scale
 from collections import defaultdict
-from alignment import SubsetAlignment
-import util
-from config import the_config
-import entropy
-import sys
-from util import PartitionFinderError
-import morph_tiger as mt
-
-import subset_ops
-
 
 # You can run kmeans in parallel, specify n_jobs as -1 and it will run
 # on all cores available.
@@ -101,12 +92,12 @@ def get_per_site_stats(alignment, cfg, a_subset):
         return entropy.sitewise_entropies(sub_align)
     elif cfg.kmeans == "tiger" and cfg.datatype == "morphology":
         sub_align = SubsetAlignment(alignment, a_subset)
-        set_parts = mt.create_set_parts(sub_align)
-        rates = mt.calculate_rates(set_parts)
+        set_parts = morph_tiger.create_set_parts(sub_align)
+        rates = morph_tiger.calculate_rates(set_parts)
         return rates
     else:  # wtf
         log.error("Unkown option passed to 'kmeans'. Please check and try again")
-        raise PartitionFinderError
+        raise util.PartitionFinderError
 
 
 def kmeans_split_subset(cfg, alignment, a_subset, tree_path, n_jobs, number_of_ks=2):

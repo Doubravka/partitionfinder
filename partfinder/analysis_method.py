@@ -15,26 +15,18 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, scheme, submodels, analysis, subset, alignment, neighbour, subset_ops, kmeans, entropy
+from partfinder.config import the_config
+
 import math
-import scheme
-import submodels
-from analysis import Analysis, AnalysisError
-from alignment import SubsetAlignment
-import neighbour
-import kmeans
-from subset import Subset
-import subset_ops
-import entropy
 from scipy import spatial
 from scipy.misc import comb
 import numpy as np
-from config import the_config
 
 log = logtools.get_logger()
 
 
-class UserAnalysis(Analysis):
+class UserAnalysis(analysis.Analysis):
     def do_analysis(self):
         log.info("Performing User analysis")
         current_schemes = the_config.user_schemes
@@ -53,14 +45,14 @@ class UserAnalysis(Analysis):
             log.error(
                 "Search set to 'user', but no user schemes detected in .cfg file. Please check."
             )
-            raise AnalysisError
+            raise analysis.AnalysisError
 
         the_config.progress.end()
 
         the_config.reporter.write_best_scheme(self.results)
 
 
-class StrictClusteringAnalysis(Analysis):
+class StrictClusteringAnalysis(analysis.Analysis):
     """
     This analysis uses model parameters to guess at similar partitions, then
     just joins them together this is much less accurate than other methods, but
@@ -121,7 +113,7 @@ class StrictClusteringAnalysis(Analysis):
         the_config.reporter.write_best_scheme(self.results)
 
 
-class AllAnalysis(Analysis):
+class AllAnalysis(analysis.Analysis):
     def do_analysis(self):
         log.info("Performing complete analysis")
         partnum = len(the_config.user_subsets)
@@ -146,7 +138,7 @@ class AllAnalysis(Analysis):
         the_config.reporter.write_best_scheme(self.results)
 
 
-class GreedyAnalysis(Analysis):
+class GreedyAnalysis(analysis.Analysis):
 
     @logtools.log_info(log, "Performing Greedy Analysis")
     def do_analysis(self):
@@ -303,7 +295,7 @@ class GreedyAnalysis(Analysis):
         the_config.reporter.write_best_scheme(self.results)
 
 
-class RelaxedClusteringAnalysis(Analysis):
+class RelaxedClusteringAnalysis(analysis.Analysis):
     """
     A fast relaxed clustering algorithm for heuristic partitioning searches
 
@@ -375,7 +367,7 @@ class RelaxedClusteringAnalysis(Analysis):
                         log.error(
                             "The settings you have used for --all-states and/or --min-subset-size mean that all of your subsets have been merged into one prior to any analysis. Thus, no analysis is necessary. Please check and try again"
                         )
-                        raise AnalysisError
+                        raise analysis.AnalysisError
 
                 log.info(
                     "%d subsets merged because of --min-subset-size and/or --all-states settings"
@@ -588,7 +580,7 @@ class RelaxedClusteringAnalysis(Analysis):
         the_config.reporter.write_best_scheme(self.results)
 
 
-class KmeansAnalysis(Analysis):
+class KmeansAnalysis(analysis.Analysis):
 
     def split_subsets(self, start_subsets, tree_path):
         split_subs = {}
@@ -881,7 +873,7 @@ class KmeansAnalysis(Analysis):
                 can be found in this paper: \
                 http://www.sciencedirect.com/science/article/pii/S1055790316302780."
             )
-            raise AnalysisError
+            raise analysis.AnalysisError
         else:
             log.warning(
                 "USE CAUTION: \
@@ -922,7 +914,7 @@ class KmeansAnalysis(Analysis):
                 check and try again."
                 % (the_config.min_subset_size, site_max)
             )
-            raise AnalysisError
+            raise analysis.AnalysisError
 
         with logtools.indented(
             log, "**Analysing starting scheme (scheme %s)**" % start_scheme.name
@@ -943,7 +935,7 @@ class KmeansAnalysis(Analysis):
                 morphological data. The kmeans algorithm \
                 now works with entropies, not TIGER rates."
             )
-            raise AnalysisError
+            raise analysis.AnalysisError
 
         return start_result, start_scheme, tree_path
 
@@ -1008,7 +1000,7 @@ class KmeansAnalysis(Analysis):
 
         # get entropies for whole alignment for this subset
         onesub = subset_ops.merge_subsets(subsets)
-        entropies = entropy.sitewise_entropies(SubsetAlignment(self.alignment, onesub))
+        entropies = entropy.sitewise_entropies(alignment.SubsetAlignment(self.alignment, onesub))
 
         # find nearest site for each invariant site
         # replacements is a dict of: key: invariant col; value: replacement col,
@@ -1033,7 +1025,7 @@ class KmeansAnalysis(Analysis):
 
         new_subsets = []
         for s in sub_dict:
-            n = Subset(the_config, set(sub_dict[s]))
+            n = subset.Subset(the_config, set(sub_dict[s]))
             new_subsets.append(n)
 
         return new_subsets
@@ -1061,7 +1053,7 @@ class KmeansAnalysis(Analysis):
                           One way to fix this is to join your small datablocks
                           together into larger datablocks"""
                 )
-                raise AnalysisError
+                raise analysis.AnalysisError
 
         while True:
             step += 1
@@ -1115,5 +1107,5 @@ def choose_method(search):
         method = KmeansAnalysis
     else:
         log.error("Search algorithm '%s' is not recognised", search)
-        raise AnalysisError
+        raise analysis.AnalysisError
     return method

@@ -19,7 +19,7 @@ from partfinder import logtools, submodels, subset_ops
 
 log = logtools.get_logger()
 
-from util import PartitionFinderError, get_aic, get_aicc, get_bic
+from partfinder.util import PartitionFinderError, get_aic, get_aicc, get_bic
 
 
 class SchemeError(PartitionFinderError):
