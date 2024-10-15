@@ -16,6 +16,8 @@
 # and conditions as well.
 
 from partfinder import logtools, util, phyml_models, database
+#TODO remove 
+from partfinder import phyml_models as models
 
 log = logtools.get_logger()
 

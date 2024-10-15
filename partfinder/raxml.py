@@ -16,6 +16,9 @@
 # and conditions as well.
 
 from partfinder import logtools, util, database, reporter, raxml_models
+#TODO remove 
+from partfinder import raxml_models as models
+
 from partfinder.config import the_config
 
 log = logtools.get_logger()
