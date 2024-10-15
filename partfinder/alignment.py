@@ -21,9 +21,8 @@
     http://www.atgc-montpellier.fr/phyml/usersguide.php?type=command
 
 """
-from partfinder import logtools
+from partfinder import logtools, util
 import os
-from util import PartitionFinderError
 import numpy as np
 import cStringIO
 from itertools import chain
@@ -101,7 +100,7 @@ morph_dict = {
 morph_states = set(chain(*morph_dict.values()))
 
 
-class AlignmentError(PartitionFinderError):
+class AlignmentError(util.PartitionFinderError):
     pass
 
 
