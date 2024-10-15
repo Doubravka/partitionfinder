@@ -20,7 +20,7 @@ from partfinder import logtools
 log = logtools.get_logger()
 
 import os
-import cPickle as pickle
+import pickle
 
 from util import PartitionFinderError
 

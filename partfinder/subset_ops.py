@@ -20,7 +20,7 @@ from partfinder import logtools
 log = logtools.get_logger()
 
 import hashlib
-import cPickle as pickle
+import pickle
 import subset
 from util import get_aic, get_aicc, get_bic
 from scipy.stats import chi2

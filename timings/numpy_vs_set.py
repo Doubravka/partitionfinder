@@ -3,7 +3,7 @@ import timeit
 setup_fmt = """
 import random
 from hashlib import md5
-from cPickle import dumps
+from pickle import dumps
 from numpy import union1d, concatenate, array
 
 cols = range({0})

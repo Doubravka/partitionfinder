@@ -22,7 +22,7 @@ log = logtools.get_logger()
 import logging
 import os
 import fnmatch
-import cPickle as pickle
+import pickle
 
 
 class ConfigurationError(util.PartitionFinderError):
