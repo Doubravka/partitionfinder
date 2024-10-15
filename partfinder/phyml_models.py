@@ -17,6 +17,8 @@
 # conditions as well.
 
 from partfinder import logtools, model_utils, util, config
+# TODO remove
+from partfinder.model_utils import get_num_params
 
 log = logtools.get_logger()
 
