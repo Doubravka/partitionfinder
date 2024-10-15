@@ -15,7 +15,7 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-import logtools
+from partfinder import logtools, config, scheme, subset, subset_ops, model_loader
 
 log = logtools.get_logger()
 
@@ -40,11 +40,7 @@ from pyparsing import (
 # Use this for debugging
 # ParserElement.verbose_stacktrace = True
 
-import scheme
-import subset
-import subset_ops
-import config
-import model_loader as mo
+
 from util import PartitionFinderError
 
 
@@ -338,5 +334,5 @@ class Parser(object):
 
         self.cfg.models = [x.upper() for x in mods]
 
-        mo.load_models(self.cfg)
+        model_loader.load_models(self.cfg)
         self.cfg.model_count = len(self.cfg.models)

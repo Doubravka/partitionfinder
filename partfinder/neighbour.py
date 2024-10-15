@@ -22,7 +22,7 @@ import scipy.spatial.distance
 import itertools
 from util import PartitionFinderError
 
-import logtools
+from partfinder import logtools
 
 log = logtools.get_logger()
 

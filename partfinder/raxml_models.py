@@ -15,7 +15,7 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-import logtools
+from partfinder import logtools
 import model_loader as mo
 from util import memoize
 from config import the_config

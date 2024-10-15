@@ -21,7 +21,7 @@
     http://www.atgc-montpellier.fr/phyml/usersguide.php?type=command
 
 """
-import logtools
+from partfinder import logtools
 import os
 from util import PartitionFinderError
 import numpy as np
