@@ -16,7 +16,8 @@
 # and conditions as well.
 
 from partfinder import logtools, util, database, reporter, raxml_models
-#TODO remove 
+
+# TODO remove
 from partfinder import raxml_models as models
 
 from partfinder.config import the_config
@@ -94,7 +95,9 @@ def write_partition_file(scheme, alignment_path):
     partition_filehandle = open(partition_filepath, "w")
     sorted_subsets = [sub for sub in scheme]
     sorted_subsets.sort(key=lambda sub: min(sub.columns), reverse=False)
-    reporter.write_raxml_partitions(scheme, partition_filehandle, sorted_subsets, use_lg=True)
+    reporter.write_raxml_partitions(
+        scheme, partition_filehandle, sorted_subsets, use_lg=True
+    )
     return partition_filepath
 
 

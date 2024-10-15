@@ -23,6 +23,7 @@ log = logtools.get_logger()
 import hashlib
 import pickle
 
+
 class AnalysisError(PartitionFinderError):
     pass
 

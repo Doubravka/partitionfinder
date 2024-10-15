@@ -15,7 +15,18 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, scheme, submodels, analysis, subset, alignment, neighbour, subset_ops, kmeans, entropy
+from partfinder import (
+    logtools,
+    scheme,
+    submodels,
+    analysis,
+    subset,
+    alignment,
+    neighbour,
+    subset_ops,
+    kmeans,
+    entropy,
+)
 from partfinder.config import the_config
 
 import math
@@ -1000,7 +1011,9 @@ class KmeansAnalysis(analysis.Analysis):
 
         # get entropies for whole alignment for this subset
         onesub = subset_ops.merge_subsets(subsets)
-        entropies = entropy.sitewise_entropies(alignment.SubsetAlignment(self.alignment, onesub))
+        entropies = entropy.sitewise_entropies(
+            alignment.SubsetAlignment(self.alignment, onesub)
+        )
 
         # find nearest site for each invariant site
         # replacements is a dict of: key: invariant col; value: replacement col,

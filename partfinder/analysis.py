@@ -15,7 +15,17 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, database, scheme, subset_ops, alignment, threadpool, results, util, raxml
+from partfinder import (
+    logtools,
+    database,
+    scheme,
+    subset_ops,
+    alignment,
+    threadpool,
+    results,
+    util,
+    raxml,
+)
 from partfinder.config import the_config
 
 log = logtools.get_logger()
@@ -24,6 +34,7 @@ import shutil
 import threading
 import collections
 from shutil import copyfile
+
 
 class AnalysisError(util.PartitionFinderError):
     pass

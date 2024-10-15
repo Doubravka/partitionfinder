@@ -19,6 +19,7 @@ from partfinder import logtools
 
 log = logtools.get_logger()
 
+
 # Create a set partition for each column in the alignment
 def create_set_parts(alignment):
     log.debug("Creating set partitions")

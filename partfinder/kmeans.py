@@ -27,6 +27,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import scale
 from collections import defaultdict
 
+
 # You can run kmeans in parallel, specify n_jobs as -1 and it will run
 # on all cores available.
 def kmeans(rate_array, number_of_ks, n_jobs):
