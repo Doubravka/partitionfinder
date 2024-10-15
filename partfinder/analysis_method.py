@@ -20,7 +20,7 @@ from partfinder.config import the_config
 
 import math
 from scipy import spatial
-from scipy.misc import comb
+from scipy.special import comb
 import numpy as np
 
 log = logtools.get_logger()
