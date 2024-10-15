@@ -3,7 +3,7 @@ from partfinder import alignment
 
 
 def test_mat():
-    '''This test should pass'''
+    """This test should pass"""
     test = """
 10 2
 Allosaurus_fragilis                 11
@@ -18,5 +18,4 @@ Ornitholestes_hermanni              10
 Huaxiagnathus_orientalis            10
 
     """
-    alignment.AlignmentParser(test)		
-
+    alignment.AlignmentParser(test)

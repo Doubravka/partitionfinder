@@ -8,6 +8,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 def get_file_list(strlist):
     return ["test%02d.cfg" % int(n) for n in strlist.split()]
 
+
 all_tests = {
     "DNA_success": get_file_list("1 2 3 4 5 6 7 8 9 10 11"),
     "DNA_failure": get_file_list("14"),

@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details. You should have received a copy
 # of the GNU General Public License along with this program.  If not, see
-#<http://www.gnu.org/licenses/>. PartitionFinder also includes the PhyML
+# <http://www.gnu.org/licenses/>. PartitionFinder also includes the PhyML
 # program, the RAxML program, and the PyParsing library,
 # all of which are protected by their own licenses and conditions, using
 # PartitionFinder implies that you agree with those licences and
@@ -20,6 +20,7 @@ import logtools
 from util import memoize
 from config import the_config
 from model_utils import get_num_params
+
 log = logtools.get_logger()
 
 
@@ -69,8 +70,11 @@ def get_model_commandline(modelstring):
     Input a model string, and get the PhyML command line
     """
 
-    commandline = the_config.available_models.query("name=='%s'" % modelstring).phyml_commandline.values[0]
+    commandline = the_config.available_models.query(
+        "name=='%s'" % modelstring
+    ).phyml_commandline.values[0]
     return commandline
+
 
 if __name__ == "__main__":
     pass

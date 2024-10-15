@@ -1,7 +1,7 @@
 # from partfinder import options, threadpool
 # import shlex
 
-#def pytest_generate_tests(metafunc):
+# def pytest_generate_tests(metafunc):
 #    # This function feeds the output of the above function into the tests below
 #    metafunc.parametrize(
 #        'good_args', [
@@ -20,4 +20,3 @@
 #     o.parse_args(shlex.split('-p 3 folder'))
 #     assert o.processes == 3
 #
-

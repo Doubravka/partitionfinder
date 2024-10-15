@@ -45,19 +45,19 @@ prot_rcluster5 | success              |
 
 # Turn the text above into a container of info about the tests
 test_container = {}
-for line in test_description.split('\n'):
+for line in test_description.split("\n"):
     line = line.strip()
     if not line:
         continue
-    name, res, cmdline = [x.strip() for x in line.split('|')]
+    name, res, cmdline = [x.strip() for x in line.split("|")]
     if name[:3] == "DNA":
         kind = "DNA"
     else:
         kind = "protein"
-    if res == 'success':
+    if res == "success":
         error = None
-    elif res[:5] == 'xfail':
-        error = 'xfail', res[5:].strip()
+    elif res[:5] == "xfail":
+        error = "xfail", res[5:].strip()
     else:
         # Get the Exception from the local space (must be imported)
         error = locals()[res]
@@ -67,11 +67,12 @@ for line in test_description.split('\n'):
 
 def pytest_generate_tests(metafunc):
     # This function feeds the output of the above function into the tests below
-    if 'folder_name' in metafunc.fixturenames:
+    if "folder_name" in metafunc.fixturenames:
         # Send it sorted order
         k = test_container.keys()
         k.sort()
-        metafunc.parametrize('folder_name', k)
+        metafunc.parametrize("folder_name", k)
+
 
 # The actual test function
 def test_clustering(folder_name):

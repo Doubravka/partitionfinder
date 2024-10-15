@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import logging
@@ -28,6 +29,7 @@ import util
 import progress
 import cPickle as pickle
 
+
 class ConfigurationError(util.PartitionFinderError):
     pass
 
@@ -35,19 +37,38 @@ class ConfigurationError(util.PartitionFinderError):
 class Configuration(object):
     # List of valid options. The first one is the default
     options = {
-        'branchlengths': ['linked', 'unlinked'],
-        'model_selection': ['aic', 'aicc', 'bic'],
-        'search': ['all', 'user', 'greedy', 'hcluster', 'rcluster', 'rclusterf', 'kmeans', 'krmeans']
+        "branchlengths": ["linked", "unlinked"],
+        "model_selection": ["aic", "aicc", "bic"],
+        "search": [
+            "all",
+            "user",
+            "greedy",
+            "hcluster",
+            "rcluster",
+            "rclusterf",
+            "kmeans",
+            "krmeans",
+        ],
     }
 
     def __init__(self):
         pass
 
-    def init(self, datatype="DNA", phylogeny_program='phyml',
-                 save_phylofiles=False, cmdline_extras="", cluster_weights=None,
-                 cluster_percent=10.0, cluster_max=-987654321, kmeans='entropy', 
-                 quick=False, min_subset_size = 100, all_states = False, 
-                 no_ml_tree = False):
+    def init(
+        self,
+        datatype="DNA",
+        phylogeny_program="phyml",
+        save_phylofiles=False,
+        cmdline_extras="",
+        cluster_weights=None,
+        cluster_percent=10.0,
+        cluster_max=-987654321,
+        kmeans="entropy",
+        quick=False,
+        min_subset_size=100,
+        all_states=False,
+        no_ml_tree=False,
+    ):
 
         log.info("------------- Configuring Parameters -------------")
         # Only required if user adds them
@@ -69,10 +90,8 @@ class Configuration(object):
         self.all_states = all_states
         self.no_ml_tree = no_ml_tree
 
-
-
         # Record this
-        self.base_path = '.'
+        self.base_path = "."
         self.alignment = None
         self.user_tree = None
         self.old_working_directory = None
@@ -93,10 +112,10 @@ class Configuration(object):
 
         if datatype == "morphology":
             if phylogeny_program != "raxml":
-                log.error("RAxML must be used for morphological data. Please add '--raxml' to your commandline")
+                log.error(
+                    "RAxML must be used for morphological data. Please add '--raxml' to your commandline"
+                )
                 raise ConfigurationError
-
-
 
         # Import the right processor
         self.processor = __import__(phylogeny_program.lower(), globals())
@@ -119,10 +138,7 @@ class Configuration(object):
         self.validate_cluster()
         self.validate_kmeans()
 
-
         return self
-
-
 
     def set_default_options(self):
 
@@ -136,8 +152,7 @@ class Configuration(object):
         if cluster_weights is None:
             # default weights - just use overall rates of subsets. Based on
             # 2013 analyses.
-            self.cluster_weights = {"rate": 1, "freqs": 0,
-                                    "model": 0, "alpha": 0}
+            self.cluster_weights = {"rate": 1, "freqs": 0, "model": 0, "alpha": 0}
         else:
             # TODO. Is there a more robust way to do this...
             # Brett say "YES. But this will do for now..."
@@ -145,9 +160,13 @@ class Configuration(object):
 
             # now we check that it's a list of exactly four numbers
             if len(cluster_weights) != 4:
-                log.error("Your --cluster_weights argument should have exactly 4"
-                          " numbers separated by commas, but it has %d ('%s') "
-                          "Please check and try again", len(cluster_weights), cluster_weights)
+                log.error(
+                    "Your --cluster_weights argument should have exactly 4"
+                    " numbers separated by commas, but it has %d ('%s') "
+                    "Please check and try again",
+                    len(cluster_weights),
+                    cluster_weights,
+                )
                 raise ConfigurationError
 
             total = 0.0
@@ -156,22 +175,32 @@ class Configuration(object):
                     num = float(thing)
                     assert num >= 0.0
                 except:
-                    log.error("Unable to understand your --cluster_weights argument."
-                              " It should look like this: --cluster_weights '1,2,3,6'. "
-                              "Please double check that you included quotes, "
-                              "and four numbers greater than or equal to zero "
-                              "separated by commas. Then try again. "
-                              "The part that I couldn't understand is this: '%s'" % thing)
+                    log.error(
+                        "Unable to understand your --cluster_weights argument."
+                        " It should look like this: --cluster_weights '1,2,3,6'. "
+                        "Please double check that you included quotes, "
+                        "and four numbers greater than or equal to zero "
+                        "separated by commas. Then try again. "
+                        "The part that I couldn't understand is this: '%s'" % thing
+                    )
                     raise ConfigurationError
                 total = total + num
 
-            if total==0.0:
-                log.error("Please provide at least one cluster weight greater than zero")
+            if total == 0.0:
+                log.error(
+                    "Please provide at least one cluster weight greater than zero"
+                )
 
-            log.info("Setting cluster_weights to: "
-                     "subset_rate = %s, freqs = %s, model = %s, alpha %s"
-                     % (cluster_weights[0], cluster_weights[1],
-                        cluster_weights[2], cluster_weights[3]))
+            log.info(
+                "Setting cluster_weights to: "
+                "subset_rate = %s, freqs = %s, model = %s, alpha %s"
+                % (
+                    cluster_weights[0],
+                    cluster_weights[1],
+                    cluster_weights[2],
+                    cluster_weights[3],
+                )
+            )
 
             self.cluster_weights = {}
             self.cluster_weights["rate"] = float(eval(cluster_weights[0]))
@@ -184,8 +213,10 @@ class Configuration(object):
             assert self.cluster_percent >= 0.0
             assert self.cluster_percent <= 100.0
         except:
-            log.error("The rcluster-percent variable must be between 0.0 to 100.0, yours "
-                      "is %.2f. Please check and try again." % self.cluster_percent)
+            log.error(
+                "The rcluster-percent variable must be between 0.0 to 100.0, yours "
+                "is %.2f. Please check and try again." % self.cluster_percent
+            )
             raise ConfigurationError
         log.debug("Setting rcluster-percent to %.2f" % self.cluster_percent)
 
@@ -198,16 +229,19 @@ class Configuration(object):
             try:
                 assert self.cluster_max > 0 or self.cluster_max == -987654321
             except:
-                log.error("The rcluster-max variable must greater than zero, yours "
-                          "is %d. Please check and try again." % self.cluster_max)
+                log.error(
+                    "The rcluster-max variable must greater than zero, yours "
+                    "is %d. Please check and try again." % self.cluster_max
+                )
                 raise ConfigurationError
             log.debug("Setting rcluster-max to %d" % self.cluster_max)
 
     def validate_kmeans(self):
-        if self.kmeans not in ('entropy', 'tiger'):
+        if self.kmeans not in ("entropy", "tiger"):
             log.error(
                 "The --kmeans setting must be 'entropy' \
-                or 'tiger'. Please check and restart")
+                or 'tiger'. Please check and restart"
+            )
             raise ConfigurationError
 
     def find_programs(self):
@@ -225,11 +259,9 @@ class Configuration(object):
 
     def reset(self):
         if self.old_working_directory is not None:
-            log.debug(
-                "Returning to original path: %s", self.old_working_directory)
+            log.debug("Returning to original path: %s", self.old_working_directory)
             os.chdir(self.old_working_directory)
-        log.debug(
-            "Cleaning out all subsets (There are %d)...", subset.count_subsets())
+        log.debug("Cleaning out all subsets (There are %d)...", subset.count_subsets())
         subset.clear_subsets()
         if self.database:
             self.database.close()
@@ -241,7 +273,7 @@ class Configuration(object):
             pth, ext = os.path.splitext(pth)
             folder, filename = os.path.split(pth)
             filename += ext
-            if ext == '.cfg':
+            if ext == ".cfg":
                 return folder, filename
             # We still need a filename
         else:
@@ -251,11 +283,10 @@ class Configuration(object):
 
         # Now let's find the filename. Just return the first hit.
         for filename in os.listdir(folder):
-            if fnmatch.fnmatch(filename, '*.cfg'):
+            if fnmatch.fnmatch(filename, "*.cfg"):
                 return folder, filename
 
-        log.error("Cannot find a configuration file in "
-                  "working folder '%s'", folder)
+        log.error("Cannot find a configuration file in " "working folder '%s'", folder)
 
         raise ConfigurationError
 
@@ -270,10 +301,10 @@ class Configuration(object):
 
         # check that user didn't enter a file instead of a folder
         # if os.path.isfile(pth):
-            # log.error("The second argument of the commandline currently
-            # points to a file, but it should point to the folder that contains
-            # the alignment and .cfg files, please check.")
-            # raise ConfigurationError
+        # log.error("The second argument of the commandline currently
+        # points to a file, but it should point to the folder that contains
+        # the alignment and .cfg files, please check.")
+        # raise ConfigurationError
 
         self.set_base_path(folder)
 
@@ -301,15 +332,16 @@ class Configuration(object):
             util.make_dir(pth)
 
     def register_output_folders(self):
-        self.register_folder('subsets')
-        self.register_folder('schemes')
-        self.register_folder('phylofiles')
-        self.register_folder('start_tree')
+        self.register_folder("subsets")
+        self.register_folder("schemes")
+        self.register_folder("phylofiles")
+        self.register_folder("start_tree")
 
     def init_logger(self, pth):
-        handler = logging.FileHandler(os.path.join(pth, "log.txt"), 'a')
+        handler = logging.FileHandler(os.path.join(pth, "log.txt"), "a")
         formatter = logging.Formatter(
-            "%(levelname)-8s | %(asctime)s | %(name)-10s | %(message)s")
+            "%(levelname)-8s | %(asctime)s | %(name)-10s | %(message)s"
+        )
         handler.setFormatter(formatter)
         handler.setLevel(logging.DEBUG)
         logging.getLogger("").addHandler(handler)
@@ -322,7 +354,8 @@ class Configuration(object):
         p.parse_file(config_path)
 
         log.info(
-            "------------------------ BEGINNING NEW RUN -------------------------------")
+            "------------------------ BEGINNING NEW RUN -------------------------------"
+        )
 
     def set_base_path(self, base_path):
         self.full_base_path = os.path.abspath(base_path)
@@ -334,7 +367,7 @@ class Configuration(object):
         os.chdir(self.full_base_path)
 
         # Our base path is now this
-        self.base_path = '.'
+        self.base_path = "."
         self.output_path = os.path.join(self.base_path, "analysis")
         self.full_output_path = os.path.join(self.full_base_path, "analysis")
 
@@ -347,23 +380,30 @@ class Configuration(object):
         value = value.lower()
 
         if option not in self.options:
-            log.error("'%s' is not a valid option to set in the configuration",
-                      option)
+            log.error("'%s' is not a valid option to set in the configuration", option)
             raise ConfigurationError
 
         # Compare lower case
         valid = [x.lower() for x in self.options[option]]
         if value not in valid:
             log.error("'%s' is not a valid option for '%s'" % (value, option))
-            log.info("The only valid options for '%s' are: %s" %
-                     (option, "'%s'" % ("', '".join(self.options[option]))))
+            log.info(
+                "The only valid options for '%s' are: %s"
+                % (option, "'%s'" % ("', '".join(self.options[option])))
+            )
             raise ConfigurationError
 
         # TODO: not the best place for this at all..., but it works
-        if option == "search" and "cluster" in value and self.phylogeny_program != 'raxml':
-            log.error("Clustering methods are only available when using raxml"
-                      " (the --raxml commandline option). Please check and try again."
-                      " See the manual for more details.")
+        if (
+            option == "search"
+            and "cluster" in value
+            and self.phylogeny_program != "raxml"
+        ):
+            log.error(
+                "Clustering methods are only available when using raxml"
+                " (the --raxml commandline option). Please check and try again."
+                " See the manual for more details."
+            )
             raise ConfigurationError
 
         log.info("Setting '%s' to '%s'", option, value)
@@ -379,10 +419,10 @@ class Configuration(object):
         if self.user_tree is None:
             self.user_tree_topology_path = None
         else:
-            self.user_tree_topology_path = \
-                    os.path.join(self.base_path, self.user_tree)
-            log.info("Looking for tree file '{}'...".format(
-                self.user_tree_topology_path))
+            self.user_tree_topology_path = os.path.join(self.base_path, self.user_tree)
+            log.info(
+                "Looking for tree file '{}'...".format(self.user_tree_topology_path)
+            )
             util.check_file_exists(self.user_tree_topology_path)
 
     def check_for_old_config(self):
@@ -400,12 +440,12 @@ class Configuration(object):
         datablocks = [(s.names, s.description, s.column_set) for s in self.user_subsets]
 
         restart_info = {
-            'alignment' : self.alignment,
-            'branchlengths': self.branchlengths,
-            'program' : self.phylogeny_program,
-            'datablocks' : datablocks,
-            'topology' : topology,
-            'start_tree': self.no_ml_tree
+            "alignment": self.alignment,
+            "branchlengths": self.branchlengths,
+            "program": self.phylogeny_program,
+            "datablocks": datablocks,
+            "topology": topology,
+            "start_tree": self.no_ml_tree,
             # self.partitions.partitions,
         }
 
@@ -413,8 +453,8 @@ class Configuration(object):
         has_subsets = not self.database.is_empty()
 
         # We also need to know if there's an old conifg file saved
-        cfg_dir = os.path.join(self.output_path, 'cfg')
-        old_cfg_path = os.path.join(cfg_dir, 'oldcfg.bin')
+        cfg_dir = os.path.join(self.output_path, "cfg")
+        old_cfg_path = os.path.join(cfg_dir, "oldcfg.bin")
         if os.path.exists(old_cfg_path):
             has_config = True
         else:
@@ -425,21 +465,27 @@ class Configuration(object):
             # cfg file settings, overwrite anything else
             if not os.path.exists(cfg_dir):
                 os.makedirs(cfg_dir)
-            #store a nice binary
-            f = open(old_cfg_path, 'wb')
+            # store a nice binary
+            f = open(old_cfg_path, "wb")
             pickle.dump(restart_info, f, -1)
             f.close()
             return 0
 
         if not has_config:
-            log.error("There are subsets stored, but PartitionFinder can't determine where they are from")
-            log.info("Please re-run the analysis using the '--force-restart' option at the command line")
-            log.warning("This will delete all of the analyses in the '/analysis' folder")
+            log.error(
+                "There are subsets stored, but PartitionFinder can't determine where they are from"
+            )
+            log.info(
+                "Please re-run the analysis using the '--force-restart' option at the command line"
+            )
+            log.warning(
+                "This will delete all of the analyses in the '/analysis' folder"
+            )
             raise ConfigurationError
 
         # We have an old config, load it and compare the important bits
         log.info("Checking previously run configuration data...")
-        f = open(old_cfg_path, 'rb')
+        f = open(old_cfg_path, "rb")
         old_restart_info = pickle.load(f)
         f.close()
         fail = []
@@ -452,37 +498,44 @@ class Configuration(object):
         #                 " you used for the initial analysis, or to re-run the analysis using the "
         #                 "--force-restart option at the command line.")
 
-        if not old_restart_info['alignment'] == restart_info['alignment']:
+        if not old_restart_info["alignment"] == restart_info["alignment"]:
             log.error("The alignment has changed between runs")
             fail.append("alignment")
 
-        if not old_restart_info['branchlengths'] == restart_info['branchlengths']:
+        if not old_restart_info["branchlengths"] == restart_info["branchlengths"]:
             fail.append("branchlengths")
-        
-        if not old_restart_info['datablocks'] == restart_info['datablocks']:
+
+        if not old_restart_info["datablocks"] == restart_info["datablocks"]:
             fail.append("[data_blocks]")
-        
-        if not old_restart_info['program'] == restart_info['program']:
-            fail.append(
-                "phylogeny_program (the --raxml commandline option)")
-        
-        if not old_restart_info['topology'] == restart_info['topology']:
+
+        if not old_restart_info["program"] == restart_info["program"]:
+            fail.append("phylogeny_program (the --raxml commandline option)")
+
+        if not old_restart_info["topology"] == restart_info["topology"]:
             fail.append("user_tree_topology")
 
-        if not old_restart_info['start_tree'] == restart_info['start_tree']:
+        if not old_restart_info["start_tree"] == restart_info["start_tree"]:
             fail.append("starting tree (i.e. the --no-ml-tree option)")
 
-
         if len(fail) > 0:
-            log.error("There are subsets stored, but PartitionFinder has detected that these were run using a different .cfg setup")
-            log.error("The following settings in the new .cfg file are incompatible with the previous analysis: %s" % (', '.join(fail)))
-            log.info("To run this analysis and overwrite previous output, re-run the analysis using '--force-restart' option")
-            log.info("To run this analysis without deleting the previous analysis, please place your alignment and .cfg in a new folder and try again")
+            log.error(
+                "There are subsets stored, but PartitionFinder has detected that these were run using a different .cfg setup"
+            )
+            log.error(
+                "The following settings in the new .cfg file are incompatible with the previous analysis: %s"
+                % (", ".join(fail))
+            )
+            log.info(
+                "To run this analysis and overwrite previous output, re-run the analysis using '--force-restart' option"
+            )
+            log.info(
+                "To run this analysis without deleting the previous analysis, please place your alignment and .cfg in a new folder and try again"
+            )
             raise ConfigurationError
-        
 
 
 the_config = Configuration()
+
 
 def init(*args, **kwargs):
     the_config.init(*args, **kwargs)

@@ -16,14 +16,21 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
 import numpy
 
 from alignment import Alignment, SubsetAlignment
-from util import (ParseError, PartitionFinderError, remove_runID_files, get_aic, get_aicc,
-                  get_bic)
+from util import (
+    ParseError,
+    PartitionFinderError,
+    remove_runID_files,
+    get_aic,
+    get_aicc,
+    get_bic,
+)
 import subset_ops
 
 
@@ -43,8 +50,8 @@ def clear_subsets():
 
 
 class Subset(object):
-    """Contains a set of columns in the Alignment
-    """
+    """Contains a set of columns in the Alignment"""
+
     _cache = {}
 
     def __new__(cls, cfg, column_set, name=None, description=None):
@@ -75,8 +82,7 @@ class Subset(object):
 
         # We put all results into this array, which is sized to the number of
         # models that we are analysing
-        self.result_array = numpy.zeros(
-            cfg.model_count, cfg.data_layout.data_type)
+        self.result_array = numpy.zeros(cfg.model_count, cfg.data_layout.data_type)
 
         # This points to the current empty array entry that we will fill up
         # next. When we're done it will equal the size of the array (and
@@ -116,7 +122,7 @@ class Subset(object):
         try:
             s = []
             for desc in self.description:
-                step = desc[2] 
+                step = desc[2]
                 if step == 1:
                     text = "%s-%s" % (desc[0], desc[1])
                 else:
@@ -124,16 +130,16 @@ class Subset(object):
                 s.append(text)
 
             if use_commas:
-                site_description = ', '.join(s)
-            else: 
-                site_description = ' '.join(s)
-            return site_description 
+                site_description = ", ".join(s)
+            else:
+                site_description = " ".join(s)
+            return site_description
         except:
-            return ', '.join(map(str, self.columns))
+            return ", ".join(map(str, self.columns))
 
     @property
     def site_description(self):
-        return self.get_site_description(use_commas = True)
+        return self.get_site_description(use_commas=True)
 
     @property
     def site_description_no_commas(self):
@@ -145,7 +151,7 @@ class Subset(object):
     def load_results(self, cfg):
         matching = cfg.database.get_results_for_subset(self)
         # We might get models that we don't want, so we need to filter them
-        for i, mod in enumerate(matching['model_id']):
+        for i, mod in enumerate(matching["model_id"]):
             if mod in self.models_not_done:
                 self.result_array[self.result_current] = matching[i]
                 self.result_current += 1
@@ -176,8 +182,10 @@ class Subset(object):
         cfg.database.save_result(self, self.result_current)
         self.result_current += 1
 
-        log.debug("Added model to subset. Model: %s, params: %d, sites:%d, lnL:%.2f, site_rate %f"
-                  % (model, K, n, lnL, result.site_rate))
+        log.debug(
+            "Added model to subset. Model: %s, params: %d, sites:%d, lnL:%.2f, site_rate %f"
+            % (model, K, n, lnL, result.site_rate)
+        )
 
     def model_selection(self, cfg):
         # We want the index of the smallest value
@@ -188,25 +196,32 @@ class Subset(object):
         # TODO: this is crappy. Anyone who wants this stuff should just access
         # the entire "best" item
         self.best_info_score = best[method]
-        self.best_lnl = best['lnl']
-        self.best_model = best['model_id']
-        self.best_site_rate = best['site_rate']
-        self.best_params = best['params']
-        self.best_alpha = best['alpha']
-        self.best_freqs = best['freqs']
-        self.best_rates = best['rates']
+        self.best_lnl = best["lnl"]
+        self.best_model = best["model_id"]
+        self.best_site_rate = best["site_rate"]
+        self.best_params = best["params"]
+        self.best_alpha = best["alpha"]
+        self.best_freqs = best["freqs"]
+        self.best_rates = best["rates"]
 
-        log.debug("Best model for this subset: %s \n" 
-                  "lnL: %s\n" 
-                  "site_rate: %s\n" 
-                  "params: %s\n" 
-                  "alpha: %s\n" 
-                  "freqs: %s\n" 
-                  "rates: %s\n" 
-                  % (self.best_model, str(self.best_lnl), 
-                    str(self.best_site_rate), str(self.best_params),
-                    str(self.best_alpha), str(self.best_freqs),
-                    str(self.best_rates)))
+        log.debug(
+            "Best model for this subset: %s \n"
+            "lnL: %s\n"
+            "site_rate: %s\n"
+            "params: %s\n"
+            "alpha: %s\n"
+            "freqs: %s\n"
+            "rates: %s\n"
+            % (
+                self.best_model,
+                str(self.best_lnl),
+                str(self.best_site_rate),
+                str(self.best_params),
+                str(self.best_alpha),
+                str(self.best_freqs),
+                str(self.best_rates),
+            )
+        )
 
     def get_param_values(self):
         param_values = {
@@ -216,8 +231,6 @@ class Subset(object):
             "freqs": self.best_freqs,
         }
         return param_values
-
-
 
     def finalise(self, cfg):
 
@@ -247,12 +260,10 @@ class Subset(object):
         self.status = DONE
         cfg.progress.subset_done(self)
 
-
         return True
 
     def prepare(self, cfg, alignment):
-        """Get everything ready for running the analysis
-        """
+        """Get everything ready for running the analysis"""
         log.debug("Preparing to analyse subset %s", self.name)
         cfg.progress.subset_begin(self)
 
@@ -266,8 +277,8 @@ class Subset(object):
         self.models_to_process = list(self.models_not_done)
         # Now order them by difficulty
         self.models_to_process.sort(
-            key=cfg.processor.models.get_model_difficulty,
-            reverse=True)
+            key=cfg.processor.models.get_model_difficulty, reverse=True
+        )
 
         self.status = PREPARED
 
@@ -282,14 +293,13 @@ class Subset(object):
         self.models_not_done.remove(model)
 
     def parse_model_result(self, cfg, model):
-        pth, tree_path = cfg.processor.make_output_path(
-            self.alignment_path, model)
+        pth, tree_path = cfg.processor.make_output_path(self.alignment_path, model)
 
         if not os.path.exists(pth):
             # If it ain't there, we can't do it
             return
 
-        output = open(pth, 'rb').read()
+        output = open(pth, "rb").read()
         try:
             result = cfg.processor.parse(output, cfg)
             self.add_result(cfg, model, result)
@@ -303,24 +313,27 @@ class Subset(object):
         except ParseError:
             # If we're loading old files, this is fine
             if self.status == FRESH:
-                log.warning("Failed loading parse output from %s."
-                            "Output maybe corrupted. I'll run it again.",
-                            pth)
+                log.warning(
+                    "Failed loading parse output from %s."
+                    "Output maybe corrupted. I'll run it again.",
+                    pth,
+                )
                 cfg.processor.remove_files(self.alignment_path, model)
             else:
                 # But if we're prepared, then we've just run this. And we're
                 # screwed. Reraise the message
                 log.error(
                     "Failed to run models %s; not sure why",
-                    ", ".join(list(self.models_not_done)))
+                    ", ".join(list(self.models_not_done)),
+                )
                 raise
 
     def add_per_site_statistics(self, per_site_stats):
         self.site_lnls = per_site_stats
 
     def fabricate_result(self, cfg, model):
-        '''If the subset fails to be analyzed, we throw some "fabricated"
-        results'''
+        """If the subset fails to be analyzed, we throw some "fabricated"
+        results"""
         processor = cfg.processor
         self.fabricated = True
 
@@ -346,7 +359,7 @@ class Subset(object):
         # Make an Alignment from the source, using this subset
         sub_alignment = SubsetAlignment(alignment, self)
 
-        sub_path = os.path.join(cfg.phylofiles_path, self.subset_id + '.phy')
+        sub_path = os.path.join(cfg.phylofiles_path, self.subset_id + ".phy")
         # Add it into the sub, so we keep it around
         self.alignment_path = sub_path
 
@@ -375,5 +388,3 @@ class Subset(object):
     @property
     def is_fresh(self):
         return self.status == FRESH
-
-

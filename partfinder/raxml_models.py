@@ -21,17 +21,19 @@ from util import memoize
 from config import the_config
 
 from model_utils import get_num_params
-log = logtools.get_logger()
 
+log = logtools.get_logger()
 
 
 @memoize
 def get_model_commandline(modelstring):
-    '''
+    """
     Input a model string, and get the piece of the raxml command line that defines that model
-    '''
+    """
 
-    commandline = the_config.available_models.query("name=='%s'" % modelstring).raxml_commandline.values[0]
+    commandline = the_config.available_models.query(
+        "name=='%s'" % modelstring
+    ).raxml_commandline.values[0]
     return commandline
 
 
@@ -73,22 +75,22 @@ def get_model_difficulty(modelstring):
 
     return total
 
-if __name__ == "__main__":
-    print "  ",
-    print "Name".ljust(15),
-    print "Params".ljust(10),
-    print "Diff".ljust(10),
-    print "CommandLine"
-    for i, model in enumerate(get_all_dna_models()):
-        print str(i+1).rjust(2), 
-        print model.ljust(15),
-        print str(get_num_params(model)).ljust(10),
-        print str(get_model_difficulty(model)).ljust(10),
-        print get_model_commandline(model)
-    for i, model in enumerate(get_all_protein_models()):
-        print str(i+1).rjust(2), 
-        print model.ljust(15),
-        print str(get_num_params(model)).ljust(10),
-        print str(get_model_difficulty(model)).ljust(10),
-        print get_model_commandline(model)
 
+if __name__ == "__main__":
+    print("  "),
+    print("Name".ljust(15)),
+    print("Params".ljust(10)),
+    print("Diff".ljust(10)),
+    print("CommandLine")
+    for i, model in enumerate(get_all_dna_models()):
+        print(str(i + 1).rjust(2)),
+        print(model.ljust(15)),
+        print(str(get_num_params(model)).ljust(10)),
+        print(str(get_model_difficulty(model)).ljust(10)),
+        print(get_model_commandline(model))
+    for i, model in enumerate(get_all_protein_models()):
+        print(str(i + 1).rjust(2)),
+        print(model.ljust(15)),
+        print(str(get_num_params(model)).ljust(10)),
+        print(str(get_model_difficulty(model)).ljust(10)),
+        print(get_model_commandline(model))

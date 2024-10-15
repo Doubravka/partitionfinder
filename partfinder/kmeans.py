@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import time
@@ -34,13 +35,14 @@ import morph_tiger as mt
 
 import subset_ops
 
+
 # You can run kmeans in parallel, specify n_jobs as -1 and it will run
 # on all cores available.
 def kmeans(rate_array, number_of_ks, n_jobs):
-    '''Take as input a list of sites, performs k-means clustering on
+    """Take as input a list of sites, performs k-means clustering on
     sites and returns k centroids and a dictionary with k's as keys
     and lists of sites belonging to that k as values
-    '''
+    """
     log.debug("Beginning k-means splitting")
     start = time.clock()
 
@@ -49,8 +51,13 @@ def kmeans(rate_array, number_of_ks, n_jobs):
 
     # Call scikit_learn's k-means, use "k-means++" to find centroids
     # kmeans_out = KMeans(init='k-means++', n_init = 100)
-    kmeans_out = KMeans(init='k-means++', n_clusters=number_of_ks,
-            n_init=100, n_jobs=n_jobs, random_state = 2147483647)
+    kmeans_out = KMeans(
+        init="k-means++",
+        n_clusters=number_of_ks,
+        n_init=100,
+        n_jobs=n_jobs,
+        random_state=2147483647,
+    )
 
     # Perform k-means clustering on the array of site likelihoods
     kmeans_out.fit(array)
@@ -78,6 +85,7 @@ def kmeans(rate_array, number_of_ks, n_jobs):
     # Return centroids and dictionary with lists of sites for each k
     return centroid_list, dict(cluster_dict)
 
+
 def rate_parser(rates_name):
     rates_list = []
     the_rates = open(rates_name)
@@ -88,21 +96,20 @@ def rate_parser(rates_name):
 
 
 def get_per_site_stats(alignment, cfg, a_subset):
-    if cfg.kmeans == 'entropy':
+    if cfg.kmeans == "entropy":
         sub_align = SubsetAlignment(alignment, a_subset)
         return entropy.sitewise_entropies(sub_align)
-    elif cfg.kmeans == 'tiger' and cfg.datatype == 'morphology':
+    elif cfg.kmeans == "tiger" and cfg.datatype == "morphology":
         sub_align = SubsetAlignment(alignment, a_subset)
         set_parts = mt.create_set_parts(sub_align)
         rates = mt.calculate_rates(set_parts)
         return rates
-    else: #wtf
+    else:  # wtf
         log.error("Unkown option passed to 'kmeans'. Please check and try again")
         raise PartitionFinderError
 
 
-def kmeans_split_subset(cfg, alignment, a_subset, tree_path,
-                        n_jobs, number_of_ks=2):
+def kmeans_split_subset(cfg, alignment, a_subset, tree_path, n_jobs, number_of_ks=2):
     """Takes a subset and number of k's and returns
     subsets for however many k's are specified
     """
@@ -111,8 +118,10 @@ def kmeans_split_subset(cfg, alignment, a_subset, tree_path,
 
     # Now store all of the per_site_stats with the subset
     a_subset.add_per_site_statistics(per_site_stat_list)
-    log.debug("The per site statistics for the first 10 sites of subset %s are %s"
-        % (a_subset.name, per_site_stat_list[0:10]))
+    log.debug(
+        "The per site statistics for the first 10 sites of subset %s are %s"
+        % (a_subset.name, per_site_stat_list[0:10])
+    )
 
     # Perform kmeans clustering on the per site stats
     kmeans_results = kmeans(per_site_stat_list, number_of_ks, n_jobs)

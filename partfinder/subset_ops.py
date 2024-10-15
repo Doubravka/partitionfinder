@@ -16,25 +16,27 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import hashlib
 import cPickle as pickle
 import subset
 from util import get_aic, get_aicc, get_bic
-from scipy.stats import chi2 
+from scipy.stats import chi2
 from util import PartitionFinderError
+
 
 class AnalysisError(PartitionFinderError):
     pass
-
 
 
 def columnset_to_string(colset):
     s = list(colset)
     s.sort()
     # Add one, cos we converted to zero base...
-    return ', '.join([str(x+1) for x in s])
+    return ", ".join([str(x + 1) for x in s])
+
 
 def subset_unique_name(columns):
     """Return a unique string based on the subsets columns (which are unique)"""
@@ -46,9 +48,10 @@ def subset_unique_name(columns):
     # we'll get the same thing. Google "MD5 Hash Collision"
     return hashlib.md5(pickled_columns).hexdigest()
 
+
 def merge_fabricated_subsets(subset_list):
-    '''Allows the merging of fabricated subsets and the preservation of their
-    centroids and lnls'''
+    """Allows the merging of fabricated subsets and the preservation of their
+    centroids and lnls"""
     columns = set()
     lnl = 0
     centroid = []
@@ -68,7 +71,7 @@ def merge_fabricated_subsets(subset_list):
 
     # Now just take the average of each centroid to be the centroid of the new
     # subset
-    centroid = [x/len(subset_list) for x in centroid]
+    centroid = [x / len(subset_list) for x in centroid]
 
     new_sub = subset.Subset(sub.cfg, columns)
 
@@ -100,6 +103,7 @@ def merge_subsets(subset_list):
 
     return newsub
 
+
 def subsets_overlap(subset_list):
     columns = set()
     overlapping = []
@@ -113,6 +117,7 @@ def subsets_overlap(subset_list):
 
     return ov
 
+
 def check_against_alignment(full_subset, alignment, the_config):
     """Check the subset definition against the alignment"""
 
@@ -121,7 +126,8 @@ def check_against_alignment(full_subset, alignment, the_config):
     if leftout:
         log.warning(
             "These columns are missing from the block definitions: %s",
-            columnset_to_string(leftout))
+            columnset_to_string(leftout),
+        )
         if the_config.no_ml_tree == False:
             log.error(
                 "You cannot estimate a Maximum Likelihood (ML) starting tree"
@@ -140,7 +146,7 @@ def check_against_alignment(full_subset, alignment, the_config):
 
 def split_subset(a_subset, cluster_list):
     """Takes a subset and splits it according to a cluster list,
-     then returns the subsets resulting from the split"""
+    then returns the subsets resulting from the split"""
     # Take each site from the first list and add it to a new
     subset_list = a_subset.columns
     subset_columns = []
@@ -159,16 +165,17 @@ def split_subset(a_subset, cluster_list):
 
     return list_of_subsets
 
+
 def subset_list_score(list_of_subsets, the_config, alignment):
     """Takes a list of subsets and return the aic, aicc, or bic score"""
 
     lnL, sum_k, subs_len = subset_list_stats(list_of_subsets, the_config, alignment)
 
-    if the_config.model_selection == 'aic':
+    if the_config.model_selection == "aic":
         return get_aic(lnL, sum_k)
-    elif the_config.model_selection == 'aicc':
+    elif the_config.model_selection == "aicc":
         return get_aicc(lnL, sum_k, subs_len)
-    elif the_config.model_selection == 'bic':
+    elif the_config.model_selection == "bic":
         return get_bic(lnL, sum_k, subs_len)
 
 
@@ -184,20 +191,19 @@ def subset_list_stats(list_of_subsets, the_config, alignment):
     # Grab the number of species so we know how many params there are
     num_taxa = len(alignment.species)
     # Linked brlens - only one extra parameter per subset
-    if the_config.branchlengths == 'linked':
-        sum_k = sum_subset_k + (len(list_of_subsets) - 1) + (
-            (2 * num_taxa) - 3)
-        log.debug("Total parameters from brlens: %d" %
-                  ((2 * num_taxa) - 3))
-        log.debug("Parameters from subset multipliers: %d" %
-                  (len(list_of_subsets) -1))
+    if the_config.branchlengths == "linked":
+        sum_k = sum_subset_k + (len(list_of_subsets) - 1) + ((2 * num_taxa) - 3)
+        log.debug("Total parameters from brlens: %d" % ((2 * num_taxa) - 3))
+        log.debug("Parameters from subset multipliers: %d" % (len(list_of_subsets) - 1))
 
     # Unlinked brlens - every subset has its own set of brlens
-    elif the_config.branchlengths == 'unlinked':
-        sum_k = sum_subset_k + (len(list_of_subsets) * (
-            (2 * num_taxa) - 3))
-        log.debug("Total parameters from brlens: %d" % ((
-            2 * num_taxa) - 3) * (len(list_of_subsets)))
+    elif the_config.branchlengths == "unlinked":
+        sum_k = sum_subset_k + (len(list_of_subsets) * ((2 * num_taxa) - 3))
+        log.debug(
+            "Total parameters from brlens: %d"
+            % ((2 * num_taxa) - 3)
+            * (len(list_of_subsets))
+        )
 
     log.debug("Grand_total_parameters: %d", sum_k)
 

@@ -20,17 +20,17 @@ from itertools import izip
 
 
 def k_subsets_i(n, k):
-    '''
+    """
     http://code.activestate.com/recipes/500268-all-k-subsets-from-an-n-set/
     Yield each subset of size k from the set of intergers 0 .. n - 1
     n -- an integer > 0
     k -- an integer > 0
-    '''
+    """
     # Validate args
     if n < 0:
-        raise ValueError('n must be > 0, got n=%d' % n)
+        raise ValueError("n must be > 0, got n=%d" % n)
     if k < 0:
-        raise ValueError('k must be > 0, got k=%d' % k)
+        raise ValueError("k must be > 0, got k=%d" % k)
     # check base cases
     if k == 0 or n < k:
         yield set()
@@ -48,12 +48,12 @@ def k_subsets_i(n, k):
 
 
 def k_subsets(s, k):
-    '''
+    """
     http://code.activestate.com/recipes/500268-all-k-subsets-from-an-n-set/
     Yield all subsets of size k from set (or list) s
     s -- a set or list (any iterable will suffice)
     k -- an integer > 0
-    '''
+    """
     s = list(s)
     n = len(s)
     for k_set in k_subsets_i(n, k):

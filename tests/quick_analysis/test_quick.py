@@ -8,7 +8,7 @@ def get_test_folders():
     testdirs = []
     # Get everything that is here...
     for p in os.listdir(HERE):
-        if p.startswith('__'):
+        if p.startswith("__"):
             continue
         d = os.path.join(HERE, p)
         if os.path.isdir(d):
@@ -18,7 +18,7 @@ def get_test_folders():
 
 def pytest_generate_tests(metafunc):
     # This function feeds the output of the above function into the tests below
-    if 'test_folder' in metafunc.fixturenames:
+    if "test_folder" in metafunc.fixturenames:
         metafunc.parametrize("test_folder", get_test_folders())
 
 

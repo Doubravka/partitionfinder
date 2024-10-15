@@ -16,7 +16,9 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
+
 
 class Progress(object):
     def __init__(self, cfg):
@@ -53,14 +55,16 @@ class TextProgress(Progress):
 
         if "kmeans" not in self.cfg.search:
             if subset_count > 10000:
-                log.warning("""%d is a lot of subsets, this might take a
+                log.warning(
+                    """%d is a lot of subsets, this might take a
                 long time to analyse. Perhaps consider using a different
                 search scheme instead (see the Manual)"""
-                % subset_count)
+                    % subset_count
+                )
 
     def next_scheme(self):
         self.schemes_analysed += 1
-        #log.info("Analysing scheme %d/%d", self.schemes_analysed,self.scheme_count)
+        # log.info("Analysing scheme %d/%d", self.schemes_analysed,self.scheme_count)
 
     def subset_begin(self, sub):
         log.debug("Begin analysing subset %s", sub)
@@ -76,11 +80,12 @@ class TextProgress(Progress):
                 # we don't know the total number of possible subsets
                 # log.info("Finished subset %d" %(num_subs_done))
                 pass
-            else:    
-                percent_done = (
-                    float(num_subs_done) * 100.0) / float(self.subset_count)
-                log.info("Finished subset %d/%d, %.2f percent done" %
-                         (num_subs_done, self.subset_count, percent_done))
+            else:
+                percent_done = (float(num_subs_done) * 100.0) / float(self.subset_count)
+                log.info(
+                    "Finished subset %d/%d, %.2f percent done"
+                    % (num_subs_done, self.subset_count, percent_done)
+                )
 
     def end(self):
         pass

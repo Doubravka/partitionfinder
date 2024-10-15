@@ -18,26 +18,32 @@
 
 import imp
 
-DEPENDENCIES = ['numpy', 'pandas', 'tables', 'pyparsing', 'scipy', 'sklearn']
+DEPENDENCIES = ["numpy", "pandas", "tables", "pyparsing", "scipy", "sklearn"]
 
 for dep in DEPENDENCIES:
     try:
         imp.find_module(dep)
     except ImportError:
-        print('\n\n\n **** ERROR **** \n')
-        print('Could not find the dependency %s, please check that you have '
-	    	  'followed the installation instructions in the manual '
-	    	  ' and try again.' %(dep))
-        print('\nPartitionFinder 2 (unlike PartitionFinder 1) requires a few'
-        	  ' other Python packages to work. All of these '
-			  'can be installed very easily, in a single click, by installing '
-			  'the Python 2.7.x '
-			  'version of the Anaconda Python distrubition, which you can '
-			  'find here (remember to get the 2.7 version!): '
-			  '\n\nhttps://www.continuum.io/downloads ')
-        print('\nFurther instructions are in the installation section of the '
-			  'manual, which points out a number of other differences between '
-			  'PartitionFinder 1 and PartitionFinder 2 too.')
-        print('\n *************** \n\n\n')
+        print("\n\n\n **** ERROR **** \n")
+        print(
+            "Could not find the dependency %s, please check that you have "
+            "followed the installation instructions in the manual "
+            " and try again." % (dep)
+        )
+        print(
+            "\nPartitionFinder 2 (unlike PartitionFinder 1) requires a few"
+            " other Python packages to work. All of these "
+            "can be installed very easily, in a single click, by installing "
+            "the Python 2.7.x "
+            "version of the Anaconda Python distrubition, which you can "
+            "find here (remember to get the 2.7 version!): "
+            "\n\nhttps://www.continuum.io/downloads "
+        )
+        print(
+            "\nFurther instructions are in the installation section of the "
+            "manual, which points out a number of other differences between "
+            "PartitionFinder 1 and PartitionFinder 2 too."
+        )
+        print("\n *************** \n\n\n")
 
         raise ImportError

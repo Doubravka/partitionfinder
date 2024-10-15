@@ -19,6 +19,7 @@
 # http://code.activestate.com/recipes/203871/
 
 import logtools
+
 log = logtools.get_logger()
 
 import threading
@@ -26,6 +27,7 @@ from time import sleep
 import multiprocessing
 
 _cpus = None
+
 
 def get_cpu_count():
     global _cpus
@@ -36,7 +38,7 @@ def get_cpu_count():
         _cpus = multiprocessing.cpu_count()
     except NotImplementedError:
         _cpus = 1
-        log.warning('I cannot detect the number of processors...')
+        log.warning("I cannot detect the number of processors...")
     log.info("Using %s cpus", _cpus)
 
     return _cpus
@@ -79,7 +81,7 @@ class Pool(object):
                 return None, None
             else:
                 task = self.tasks[self.curtask]
-                self.curtask += 1 
+                self.curtask += 1
                 return task
         finally:
             self.task_lock.release()
@@ -96,7 +98,7 @@ class Pool(object):
         # TODO: I don't think we need this bit....
         # Wait till all tasks have been taken
         while self.more_tasks:
-            sleep(.001)
+            sleep(0.001)
         # ... now wait for them all to finish
         for t in self.threads:
             t.join()

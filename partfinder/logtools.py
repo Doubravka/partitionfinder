@@ -9,8 +9,9 @@ _max_width = 80
 _tab_width = 2
 
 # These should be the same size as the _tab_width
-_bullet       = ""
+_bullet = ""
 _continuation = "..."
+
 
 def get_logger(fname=None):
     """Pass in the __file__"""
@@ -18,7 +19,7 @@ def get_logger(fname=None):
     # Magically get the filename from the calling function
     if fname is None:
         caller_frame = inspect.stack()[1][0]
-        fname = caller_frame.f_globals['__file__']
+        fname = caller_frame.f_globals["__file__"]
 
     # Strip the beginning and the extension
     head_tail = os.path.split(fname)
@@ -32,6 +33,7 @@ def get_logger(fname=None):
     # Now wrap it and return it
     # return DumbLogger(logging.getLogger(log_name))
     return SmartLogger(logging.getLogger(log_name))
+
 
 class DumbLogger(object):
     def __init__(self, logger):
@@ -79,12 +81,12 @@ class SmartLogger(object):
     def format_message(self, msg):
         """Strip multiline comments down to a single line"""
         # First, get rid of tabs and newlines
-        warning = re.sub('\s', ' ', msg)
+        warning = re.sub("\s", " ", msg)
 
         # Now get rid of all extra spaces
         # http://stackoverflow.com/questions/1546226/
         # the-shortest-way-to-remove-multiple-spaces-in-a-string-in-python
-        return ' '.join(warning.split())
+        return " ".join(warning.split())
 
     def compose_message(self, *args):
         if len(args) > 1:
@@ -149,6 +151,7 @@ class indented(object):
 
 class log_info(object):
     """Decorator for wrapping functions indented"""
+
     def __init__(self, logger, msg):
         self.logger = logger
         self.msg = msg
@@ -157,4 +160,5 @@ class log_info(object):
         def indented_fn(*args, **kwargs):
             with indented(self.logger, self.msg):
                 fn(*args, **kwargs)
+
         return indented_fn

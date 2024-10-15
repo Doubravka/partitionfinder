@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
@@ -23,19 +24,24 @@ import sys
 import util
 
 from pyparsing import (
-    Word, Literal, nums, Suppress, ParseException,
+    Word,
+    Literal,
+    nums,
+    Suppress,
+    ParseException,
     SkipTo,
 )
 
 import phyml_models as models
 from database import DataRecord, DataLayout
 
-_binary_name = 'phyml'
-if sys.platform == 'win32':
+_binary_name = "phyml"
+if sys.platform == "win32":
     _binary_name += ".exe"
 if sys.platform == "linux" or sys.platform == "linux2":
     _binary_name += ".linux"
 _phyml_binary = None
+
 
 def make_data_layout(cfg):
     return DataLayout()
@@ -49,7 +55,7 @@ def run_phyml(command):
 
 
 def make_topology(alignment_path, datatype, cmdline_extras):
-    '''Make a BioNJ tree to start the analysis'''
+    """Make a BioNJ tree to start the analysis"""
     log.info("Making BioNJ tree for %s", alignment_path)
     cmdline_extras = check_defaults(cmdline_extras)
 
@@ -57,8 +63,7 @@ def make_topology(alignment_path, datatype, cmdline_extras):
     if datatype == "DNA":
         command = "-i '%s' -o n -b 0 %s" % (alignment_path, cmdline_extras)
     elif datatype == "protein":
-        command = "-i '%s' -o n -b 0 -d aa %s" % (
-            alignment_path, cmdline_extras)
+        command = "-i '%s' -o n -b 0 -d aa %s" % (alignment_path, cmdline_extras)
     else:
         log.error("Unrecognised datatype: '%s'" % (datatype))
         raise util.PartitionFinderError
@@ -73,19 +78,25 @@ def make_branch_lengths(alignment_path, topology_path, datatype, cmdline_extras)
     # (unpartitioned) dataset
     cmdline_extras = check_defaults(cmdline_extras)
     dir_path, fname = os.path.split(topology_path)
-    tree_path = os.path.join(dir_path, 'topology_tree.phy')
+    tree_path = os.path.join(dir_path, "topology_tree.phy")
     log.debug("Copying %s to %s", topology_path, tree_path)
     util.dupfile(topology_path, tree_path)
 
     if datatype == "DNA":
         log.info("Estimating GTR+I+G branch lengths on tree")
         command = "-i '%s' -u '%s' -m GTR -c 4 -a e -v e -o lr -b 0 %s" % (
-            alignment_path, tree_path, cmdline_extras)
+            alignment_path,
+            tree_path,
+            cmdline_extras,
+        )
         run_phyml(command)
     if datatype == "protein":
         log.info("Estimating LG+F branch lengths on tree")
         command = "-i '%s' -u '%s' -m LG -c 1 -v 0 -f m -d aa -o lr -b 0 %s" % (
-            alignment_path, tree_path, cmdline_extras)
+            alignment_path,
+            tree_path,
+            cmdline_extras,
+        )
         run_phyml(command)
 
     tree_path = make_tree_path(alignment_path)
@@ -109,12 +120,12 @@ def check_defaults(cmdline_extras):
         accuracy_local = " --min_diff_lk_local 0.01 "
 
     # Turn off any memory checking in PhyML - thanks Jess Thomas for pointing out this problem
-    no_mem = "--no_memory_check" 
+    no_mem = "--no_memory_check"
 
     # We'll put spaces at the start and end too, just in case...
-    cmdline_extras = ''.join(
-        [" ", cmdline_extras, accuracy_local, accuracy_global, no_mem, " "])
-
+    cmdline_extras = "".join(
+        [" ", cmdline_extras, accuracy_local, accuracy_global, no_mem, " "]
+    )
 
     return cmdline_extras
 
@@ -126,12 +137,12 @@ def analyse(model, alignment_path, tree_path, branchlengths, cmdline_extras):
     # dupfile(alignment_path, analysis_path)
     model_params = models.get_model_commandline(model)
 
-    if branchlengths == 'linked':
-        #constrain all branchlengths to be equal
-        bl = ' --constrained_lens '
-    elif branchlengths == 'unlinked':
-        #let branchlenghts vary among subsets
-        bl = ''
+    if branchlengths == "linked":
+        # constrain all branchlengths to be equal
+        bl = " --constrained_lens "
+    elif branchlengths == "unlinked":
+        # let branchlenghts vary among subsets
+        bl = ""
     else:
         # WTF?
         log.error("Unknown option for branchlengths: %s", branchlengths)
@@ -140,7 +151,13 @@ def analyse(model, alignment_path, tree_path, branchlengths, cmdline_extras):
     cmdline_extras = check_defaults(cmdline_extras)
 
     command = "--run_id %s -b 0 -i '%s' -u '%s' %s %s %s " % (
-        model, alignment_path, tree_path, model_params, bl, cmdline_extras)
+        model,
+        alignment_path,
+        tree_path,
+        model_params,
+        bl,
+        cmdline_extras,
+    )
     run_phyml(command)
 
     # Now get rid of this -- we have the original elsewhere
@@ -162,7 +179,7 @@ def make_output_path(aln_path, model):
 
 
 def remove_files(aln_path, model):
-    '''remove all files from the alignment directory that are produced by phyml'''
+    """remove all files from the alignment directory that are produced by phyml"""
     fnames = make_output_path(aln_path, model)
     util.delete_files(fnames)
 
@@ -174,8 +191,8 @@ class PhymlResult(DataRecord):
 class Parser(object):
     def __init__(self, cfg):
         self.cfg = cfg
-        FLOAT = Word(nums + '.-').setParseAction(lambda x: float(x[0]))
-        INTEGER = Word(nums + '-').setParseAction(lambda x: int(x[0]))
+        FLOAT = Word(nums + ".-").setParseAction(lambda x: float(x[0]))
+        INTEGER = Word(nums + "-").setParseAction(lambda x: int(x[0]))
 
         OB = Suppress("(")
         CB = Suppress(")")
@@ -184,26 +201,33 @@ class Parser(object):
         TIME_LABEL = Literal("Time used:")
         HMS = Word(nums + "hms")  # A bit rough...
 
-        lnl = (LNL_LABEL + FLOAT("lnl"))
-        tree_size = (TREE_SIZE_LABEL + FLOAT("tree_size"))
-        time = (TIME_LABEL + HMS(
-            "time") + OB + INTEGER("seconds") + Suppress("seconds") + CB)
+        lnl = LNL_LABEL + FLOAT("lnl")
+        tree_size = TREE_SIZE_LABEL + FLOAT("tree_size")
+        time = (
+            TIME_LABEL
+            + HMS("time")
+            + OB
+            + INTEGER("seconds")
+            + Suppress("seconds")
+            + CB
+        )
 
         # Shorthand...
         def nextbit(label, val):
             return Suppress(SkipTo(label)) + val
 
         # Just look for these things
-        self.root_parser = \
-            nextbit(LNL_LABEL, lnl) +\
-            nextbit(TREE_SIZE_LABEL, tree_size) +\
-            nextbit(TIME_LABEL, time)
+        self.root_parser = (
+            nextbit(LNL_LABEL, lnl)
+            + nextbit(TREE_SIZE_LABEL, tree_size)
+            + nextbit(TIME_LABEL, time)
+        )
 
     def parse(self, text):
         log.debug("Parsing phyml output...")
         try:
             tokens = self.root_parser.parseString(text)
-        except ParseException, p:
+        except ParseException as p:
             log.error(str(p))
             raise util.ParseError
 

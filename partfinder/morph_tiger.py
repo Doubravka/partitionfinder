@@ -16,12 +16,14 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 from alignment import Alignment
 import numpy as np
 from config import the_config
 from util import PartitionFinderError
+
 
 # Create a set partition for each column in the alignment
 def create_set_parts(alignment):
@@ -31,16 +33,17 @@ def create_set_parts(alignment):
     part_set_dict = {}
     for col in morph_align:
         part_set_dict = {}
-        for tax,i in enumerate(col):
+        for tax, i in enumerate(col):
             if i in part_set_dict:
                 part_set_dict[i].append(tax)
-            elif i != ord('?') and i != ord('-'):
+            elif i != ord("?") and i != ord("-"):
                 part_set_dict[i] = [tax]
         interim = []
         for i in part_set_dict:
             interim.append(part_set_dict[i])
         set_parts.append(interim)
     return set_parts
+
 
 # Calculate similarity between two set partitions
 def axpi(set_part_1, set_part_2):
@@ -53,24 +56,31 @@ def axpi(set_part_1, set_part_2):
                 sub_part = True
                 count += 1
                 break
-    return float(count)/total
+    return float(count) / total
+
 
 # Estimate rates by comparing each set partition axpi score
 def calculate_rates(set_parts):
     log.debug("Estimating TIGER rates")
     rates = []
     total = len(set_parts)
-    for count0,i in enumerate(set_parts):
+    for count0, i in enumerate(set_parts):
         number = 0
-        for count1,j in enumerate(set_parts):
+        for count1, j in enumerate(set_parts):
             if count0 == count1:
                 pass
             else:
                 number += axpi(i, j)
-        rates.append([number/(total-1)])
+        rates.append([number / (total - 1)])
     return rates
 
 
 if __name__ == "__main__":
-    set_parts = [[[1,3],[2],[4]], [[1],[2],[3],[4]], [[1,2,3],[4]], [[1,2],[3,4]], [[1,2,3,4]]]
-    print calculate_rates(set_parts)
+    set_parts = [
+        [[1, 3], [2], [4]],
+        [[1], [2], [3], [4]],
+        [[1, 2, 3], [4]],
+        [[1, 2], [3, 4]],
+        [[1, 2, 3, 4]],
+    ]
+    print(calculate_rates(set_parts))

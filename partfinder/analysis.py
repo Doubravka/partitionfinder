@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
@@ -35,12 +36,14 @@ import util
 import raxml
 from shutil import copyfile
 
+
 class AnalysisError(PartitionFinderError):
     pass
 
 
 class Analysis(object):
     """Performs the analysis and collects the results"""
+
     def __init__(self, cfg, force_restart, threads):
         the_config.validate()
 
@@ -75,8 +78,9 @@ class Analysis(object):
         if force_restart:
             # Remove everything
             if os.path.exists(the_config.output_path):
-                log.warning("Deleting all previous workings in '%s'" %
-                            the_config.output_path)
+                log.warning(
+                    "Deleting all previous workings in '%s'" % the_config.output_path
+                )
                 shutil.rmtree(the_config.output_path)
         else:
             # Remove the schemes folder, and clean out the phylofiles folder
@@ -87,7 +91,6 @@ class Analysis(object):
                 log.debug("Removing files in '%s'" % the_config.phylofiles_path)
                 shutil.rmtree(the_config.phylofiles_path)
 
-
     def analyse(self):
         try:
             self.do_analysis()
@@ -96,8 +99,6 @@ class Analysis(object):
             the_config.database.close()
         return self.results
 
-
-
     def make_alignment(self, source_alignment_path):
         # Make the alignment
         self.alignment = Alignment()
@@ -105,35 +106,40 @@ class Analysis(object):
 
         # TODO REMOVE -- this should be part of the checking procedure
         # We start by copying the alignment
-        self.alignment_path = os.path.join(the_config.start_tree_path, 'source.phy')
+        self.alignment_path = os.path.join(the_config.start_tree_path, "source.phy")
         if os.path.exists(self.alignment_path):
             # Make sure it is the same
             old_align = Alignment()
             old_align.read(self.alignment_path)
             if not old_align.same_as(self.alignment):
-                log.error("""Alignment file has changed since previous run. You
-                     need to use the force-restart option.""")
+                log.error(
+                    """Alignment file has changed since previous run. You
+                     need to use the force-restart option."""
+                )
                 raise AnalysisError
 
             compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
 
             if not compare(old_align.species, self.alignment.species):
-                log.error("""Species names in alignment have changed since previous run. You
-                     need to use the force-restart option.""")
+                log.error(
+                    """Species names in alignment have changed since previous run. You
+                     need to use the force-restart option."""
+                )
                 raise AnalysisError
-
 
         else:
             self.alignment.write(self.alignment_path)
 
     def need_new_tree(self, tree_path):
         if os.path.exists(tree_path):
-            if ';' in open(tree_path).read():
+            if ";" in open(tree_path).read():
                 log.info("Starting tree file found.")
                 redo_tree = False
             else:
-                log.info("""Starting tree file found but it is incomplete.
-                             Re-estimating""")
+                log.info(
+                    """Starting tree file found but it is incomplete.
+                             Re-estimating"""
+                )
                 redo_tree = True
         else:
             log.info("Starting tree will be estimated from the data.")
@@ -146,55 +152,71 @@ class Analysis(object):
         # that are defined in the subsets
         subset_with_everything = subset_ops.merge_subsets(the_config.user_subsets)
         self.filtered_alignment = SubsetAlignment(
-            self.alignment, subset_with_everything)
+            self.alignment, subset_with_everything
+        )
         self.filtered_alignment_path = os.path.join(
-            the_config.start_tree_path,  'filtered_source.phy')
+            the_config.start_tree_path, "filtered_source.phy"
+        )
         self.filtered_alignment.write(self.filtered_alignment_path)
 
         # Check the full subset against the alignment
-        subset_ops.check_against_alignment(subset_with_everything, self.alignment, the_config)
+        subset_ops.check_against_alignment(
+            subset_with_everything, self.alignment, the_config
+        )
 
         # We start by copying the alignment
-        self.alignment_path = os.path.join(
-            the_config.start_tree_path, 'source.phy')
+        self.alignment_path = os.path.join(the_config.start_tree_path, "source.phy")
 
         # Now check for the tree
-        tree_path = the_config.processor.make_tree_path(
-            self.filtered_alignment_path)
+        tree_path = the_config.processor.make_tree_path(self.filtered_alignment_path)
 
         if self.need_new_tree(tree_path):
             log.debug("Estimating new starting tree, no old tree found")
 
             # If we have a user tree, then use that, otherwise, create a topology
-            util.clean_out_folder(the_config.start_tree_path,
-                                  keep=["filtered_source.phy", "source.phy"])
+            util.clean_out_folder(
+                the_config.start_tree_path, keep=["filtered_source.phy", "source.phy"]
+            )
 
             if user_path is not None and user_path != "":
                 # Copy it into the start tree folder
                 log.info("Using user supplied topology at %s" % user_path)
-                topology_path = os.path.join(the_config.start_tree_path, 'user_topology.phy')
+                topology_path = os.path.join(
+                    the_config.start_tree_path, "user_topology.phy"
+                )
                 util.dupfile(user_path, topology_path)
                 need_bl = True
             elif the_config.no_ml_tree == True:
-                log.debug(
-                    "didn't find tree at %s, making a new one" % tree_path)
+                log.debug("didn't find tree at %s, making a new one" % tree_path)
                 topology_path = the_config.processor.make_topology(
-                    self.filtered_alignment_path, the_config.datatype, the_config.cmdline_extras)
+                    self.filtered_alignment_path,
+                    the_config.datatype,
+                    the_config.cmdline_extras,
+                )
                 need_bl = True
             elif the_config.no_ml_tree == False:
                 log.debug(
-                    "didn't find tree at %s, making an ML tree with RAxML" % tree_path)
+                    "didn't find tree at %s, making an ML tree with RAxML" % tree_path
+                )
 
                 tree_scheme = scheme.create_scheme(
-                    the_config, "tree_scheme", range(len(the_config.user_subsets)))
+                    the_config, "tree_scheme", range(len(the_config.user_subsets))
+                )
 
                 topology_path = raxml.make_ml_topology(
-                    self.filtered_alignment_path, the_config.datatype, the_config.cmdline_extras, tree_scheme, self.threads)
-                
+                    self.filtered_alignment_path,
+                    the_config.datatype,
+                    the_config.cmdline_extras,
+                    tree_scheme,
+                    self.threads,
+                )
+
                 # here we copy the ML tree topology so it can be used with PhyML too
                 # TODO: this is a hack, and it would be better to decide on a universal
                 # name for the different types of tree we might have.
-                phyml_tree = os.path.join(os.path.dirname(topology_path), "filtered_source.phy_phyml_tree.txt")
+                phyml_tree = os.path.join(
+                    os.path.dirname(topology_path), "filtered_source.phy_phyml_tree.txt"
+                )
                 copyfile(topology_path, phyml_tree)
 
                 need_bl = False
@@ -205,11 +227,11 @@ class Analysis(object):
                     self.filtered_alignment_path,
                     topology_path,
                     the_config.datatype,
-                    the_config.cmdline_extras)
+                    the_config.cmdline_extras,
+                )
 
         self.tree_path = tree_path
-        log.debug("Starting tree with branch lengths is here: %s" %
-                 self.tree_path)
+        log.debug("Starting tree with branch lengths is here: %s" % self.tree_path)
 
     def run_task(self, model_name, sub):
         # This bit should run in parallel (forking the processor)
@@ -219,7 +241,7 @@ class Analysis(object):
                 sub.alignment_path,
                 self.tree_path,
                 the_config.branchlengths,
-                the_config.cmdline_extras
+                the_config.cmdline_extras,
             )
             fabricate = False
         except ExternalProgramError:
@@ -231,8 +253,10 @@ class Analysis(object):
 
             # If it is kmeans we assume that the error is because the subset
             # is too small or unanalysable, so we fabricate it
-            log.debug("New subset could not be analysed. It will be merged "
-                        "at the end of the analysis")
+            log.debug(
+                "New subset could not be analysed. It will be merged "
+                "at the end of the analysis"
+            )
             fabricate = True
 
         # Not entirely sure that WE NEED to block here, but it is safer to do
@@ -264,23 +288,27 @@ class Analysis(object):
         pool = threadpool.Pool(tasks, self.threads)
         pool.join()
 
-    def analyse_list_of_subsets(self, all_subsets, ):
+    def analyse_list_of_subsets(
+        self,
+        all_subsets,
+    ):
         # get a whole list of subsets analysed in parallel
 
         # analyse bigger subsets first, for efficiency
-        all_subsets.sort(key = lambda x: 1.0/float(len(x.columns)))
+        all_subsets.sort(key=lambda x: 1.0 / float(len(x.columns)))
 
-        # chunk the list into blocks of ~1000 tasks 
+        # chunk the list into blocks of ~1000 tasks
         # in empirical testing, this speeds things up lot
         # though we are not entirely sure why...
-        n = 1000        
+        n = 1000
         n = int(n / len(the_config.models))
-        if(n<1): n=1 # seems unlikely...
+        if n < 1:
+            n = 1  # seems unlikely...
 
         log.debug("chunk size (in number of subsets) = %d", n)
 
-        subset_chunks = [all_subsets[i:i + n] for i in xrange(0, len(all_subsets), n)]
-        
+        subset_chunks = [all_subsets[i : i + n] for i in xrange(0, len(all_subsets), n)]
+
         for subsets in subset_chunks:
             # prepare the list of tasks
             tasks = []
@@ -304,8 +332,10 @@ class Analysis(object):
             # ALL subsets should already be finalised in the task. We just
             # check again here
             if not sub.finalise(the_config):
-                log.error("Failed to run models %s; not sure why" %
-                          ", " "".join(list(sub.models_not_done)))
+                log.error(
+                    "Failed to run models %s; not sure why" % ", "
+                    "".join(list(sub.models_not_done))
+                )
                 raise AnalysisError
 
     def analyse_scheme(self, sch):
@@ -323,7 +353,9 @@ class Analysis(object):
 
         # AIC needs the number of sequences
         number_of_seq = len(self.alignment.species)
-        result = scheme.SchemeResult(sch, number_of_seq, the_config.branchlengths, the_config.model_selection)
+        result = scheme.SchemeResult(
+            sch, number_of_seq, the_config.branchlengths, the_config.model_selection
+        )
         self.results.add_scheme_result(sch, result)
 
         return result

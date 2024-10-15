@@ -1,4 +1,5 @@
 import timeit
+
 setup_fmt = """
 import random
 from hashlib import md5
@@ -28,15 +29,13 @@ def meth1():
     return q, x
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     rep = 3
     number = 100
     for column_size in 100, 1000, 10000, 100000:
-        print 'using array size\t{0} ----'.format(column_size)
-        sample_size = column_size/10
+        print("using array size\t{0} ----".format(column_size))
+        sample_size = column_size / 10
         setup = setup_fmt.format(column_size, sample_size)
-        t_set = min(timeit.repeat('meth0()', setup=setup, repeat=rep, number=number))
-        t_numpy = min(timeit.repeat('meth1()', setup=setup, repeat=rep, number=number))
-        print "using sets\t{:.6f}\nusing numpy\t{:.6f}".format(t_set, t_numpy)
-
-
+        t_set = min(timeit.repeat("meth0()", setup=setup, repeat=rep, number=number))
+        t_numpy = min(timeit.repeat("meth1()", setup=setup, repeat=rep, number=number))
+        print("using sets\t{:.6f}\nusing numpy\t{:.6f}".format(t_set, t_numpy))

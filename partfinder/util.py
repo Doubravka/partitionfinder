@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
@@ -30,13 +31,16 @@ from math import log as logarithm
 class PartitionFinderError(Exception):
     pass
 
+
 class ExternalProgramError(PartitionFinderError):
     def __init__(self, stdout, stderr):
         self.stdout = stdout
         self.stderr = stderr
 
+
 class ParseError(PartitionFinderError):
     pass
+
 
 NO_CONFIG_ERROR = """
 Failed to find configuration file: '%s'. For PartitionFinder to run, there
@@ -66,7 +70,7 @@ def find_program(binary_name):
 def run_program(binary, command):
     # Add in the command file
     log.debug("Running '%s %s'", binary, command)
-    command = "\"%s\" %s" % (binary, command)
+    command = '"%s" %s' % (binary, command)
 
     # Note: We use shlex.split as it does a proper job of handling command
     # lines that are complex
@@ -74,7 +78,8 @@ def run_program(binary, command):
         shlex.split(command),
         shell=False,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT)
+        stderr=subprocess.STDOUT,
+    )
 
     err = p.wait()
 
@@ -82,6 +87,7 @@ def run_program(binary, command):
         # Capture the output to put into the error
         stdout, stderr = p.communicate()
         raise ExternalProgramError(stdout, stderr)
+
 
 def dupfile(src, dst):
     # Make a copy or a symlink so that we don't overwrite different model runs
@@ -96,14 +102,14 @@ def dupfile(src, dst):
         log.error("Cannot link/copy file %s to %s", src, dst)
         raise PartitionFinderError
 
+
 def check_file_exists(pth):
     if not os.path.exists(pth) or not os.path.isfile(pth):
         if pth.count("partition_finder.cfg") > 0:
             log.error(NO_CONFIG_ERROR, pth)
             raise PartitionFinderError
         else:
-            log.error(
-                "Failed to find file: '%s'. Please check and try again.", pth)
+            log.error("Failed to find file: '%s'. Please check and try again.", pth)
             raise PartitionFinderError
 
 
@@ -163,7 +169,7 @@ def remove_runID_files(aln_pth):
     run_ID = os.path.splitext(tail)[0]
     head = os.path.abspath(head)
     fnames = os.listdir(head)
-    fs = fnmatch.filter(fnames, '*%s*' % run_ID)
+    fs = fnmatch.filter(fnames, "*%s*" % run_ID)
     for f in fs:
         try:
             os.remove(os.path.join(head, f))
@@ -171,6 +177,7 @@ def remove_runID_files(aln_pth):
             # Don't complain if you can't delete them (This is here because we
             # sometimes try and delete things twice in the threading).
             pass
+
 
 def memoize(f):
     """Cache results from functions"""
@@ -180,11 +187,14 @@ def memoize(f):
         if x not in cache:
             cache[x] = f(*x)
         return cache[x]
+
     return memf
+
 
 def get_aic(lnL, K):
     aic = (-2.0 * lnL) + (2.0 * K)
     return aic
+
 
 def get_aicc(lnL, K, n):
     SMALL_WARNING = """
@@ -199,25 +209,25 @@ def get_aicc(lnL, K, n):
     aicc = (-2.0 * lnL) + ((2.0 * K) * (n / (n - K - 1.0)))
     return aicc
 
+
 def get_bic(lnL, K, n):
     bic = (-2.0 * lnL) + (K * logarithm(n))
     return bic
 
 
-
 # def we_are_frozen():
-    # All of the modules are built-in to the interpreter, e.g., by py2exe
-    # return hasattr(sys, "frozen")
+# All of the modules are built-in to the interpreter, e.g., by py2exe
+# return hasattr(sys, "frozen")
 
 # def get_root_install_path():
-    # pth = os.path.abspath(__file__)
-    # Split off the name and the directory...
-    # pth, not_used = os.path.split(pth)
-    # pth, not_used = os.path.split(pth)
-    # return pth
+# pth = os.path.abspath(__file__)
+# Split off the name and the directory...
+# pth, not_used = os.path.split(pth)
+# pth, not_used = os.path.split(pth)
+# return pth
 
 # def module_path():
-    # encoding = sys.getfilesystemencoding()
-    # if we_are_frozen():
-        # return os.path.dirname(unicode(sys.executable, encoding))
-    # return os.path.abspath(os.path.dirname(unicode(__file__, encoding)))
+# encoding = sys.getfilesystemencoding()
+# if we_are_frozen():
+# return os.path.dirname(unicode(sys.executable, encoding))
+# return os.path.abspath(os.path.dirname(unicode(__file__, encoding)))

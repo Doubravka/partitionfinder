@@ -51,7 +51,8 @@ class UserAnalysis(Analysis):
                     the_config.reporter.write_scheme_summary(s, res)
         else:
             log.error(
-                "Search set to 'user', but no user schemes detected in .cfg file. Please check.")
+                "Search set to 'user', but no user schemes detected in .cfg file. Please check."
+            )
             raise AnalysisError
 
         the_config.progress.end()
@@ -78,7 +79,8 @@ class StrictClusteringAnalysis(Analysis):
         # Start with the most partitioned scheme
         start_description = range(partnum)
         start_scheme = scheme.create_scheme(
-            the_config, "start_scheme", start_description)
+            the_config, "start_scheme", start_description
+        )
 
         # Analyse our first scheme
         log.info("Analysing starting scheme (scheme %s)" % start_scheme.name)
@@ -90,15 +92,18 @@ class StrictClusteringAnalysis(Analysis):
         # Now we try out all clusterings of the first scheme, to see if we can
         # find a better one
         while True:
-            log.info("***Strict clustering algorithm step %d of %d***" %
-                     (cur_s - 1, partnum - 1))
+            log.info(
+                "***Strict clustering algorithm step %d of %d***"
+                % (cur_s - 1, partnum - 1)
+            )
 
             # Calculate the subsets which are most similar
             # e.g. combined rank ordering of euclidean distances
             # Could combine average site-rates, q matrices, and frequencies
             scheme_name = "step_%d" % (cur_s - 1)
             clustered_scheme = neighbour.get_nearest_neighbour_scheme(
-                start_scheme, scheme_name, the_config)
+                start_scheme, scheme_name, the_config
+            )
 
             # Now analyse that new scheme
             cur_s += 1
@@ -145,7 +150,7 @@ class GreedyAnalysis(Analysis):
 
     @logtools.log_info(log, "Performing Greedy Analysis")
     def do_analysis(self):
-        '''A greedy algorithm for heuristic partitioning searches'''
+        """A greedy algorithm for heuristic partitioning searches"""
 
         partnum = len(the_config.user_subsets)
         scheme_count = submodels.count_greedy_schemes(partnum)
@@ -157,12 +162,14 @@ class GreedyAnalysis(Analysis):
         with logtools.indented(log, "*** Analysing starting scheme ***"):
             the_config.progress.begin(scheme_count, partnum)
             start_scheme = scheme.create_scheme(
-                the_config, "start_scheme", range(partnum))
+                the_config, "start_scheme", range(partnum)
+            )
             start_result = self.analyse_scheme(start_scheme)
             start_score = start_result.score
             if not the_config.quick:
                 the_config.reporter.write_scheme_summary(
-                    self.results.best_scheme, self.results.best_result)
+                    self.results.best_scheme, self.results.best_result
+                )
 
         subsets = [s for s in start_scheme.subsets]
 
@@ -177,7 +184,7 @@ class GreedyAnalysis(Analysis):
                 # this is a fake distance matrix, so that the greedy algorithm
                 # can use all the tricks of the relaxed clustering algorithm
                 dim = len(subsets)
-                d_matrix = np.zeros((((dim*dim)-dim))/2)
+                d_matrix = np.zeros((((dim * dim) - dim)) / 2)
                 d_matrix[:] = np.inf
 
                 if step == 1:
@@ -187,14 +194,15 @@ class GreedyAnalysis(Analysis):
                     c_matrix = spatial.distance.squareform(c_matrix)
 
                 # 1. pick top N subset pairs from distance matrix
-                cutoff = max_schemes # this defines the greedy algorithm: we look at all schemes
+                cutoff = max_schemes  # this defines the greedy algorithm: we look at all schemes
 
                 closest_pairs = neighbour.get_N_closest_subsets(
-                    subsets, the_config, cutoff, d_matrix)
+                    subsets, the_config, cutoff, d_matrix
+                )
 
                 # 2. analyse subsets in top N that have not yet been analysed
                 pairs_todo = neighbour.get_pairs_todo(closest_pairs, c_matrix, subsets)
-                if len(pairs_todo)>0:
+                if len(pairs_todo) > 0:
                     log.info("Analysing %d new subset pairs" % len(pairs_todo))
                     new_subs = []
                     sub_tuples = []
@@ -209,18 +217,20 @@ class GreedyAnalysis(Analysis):
                     # 3. for all K new subsets, update improvement matrix and find best pair
                     log.info("Finding the best partitioning scheme")
                     diffs = []
-                    scheme_name = "step_%d" %(step)
+                    scheme_name = "step_%d" % (step)
                     for t in sub_tuples:
                         pair_merged = t[0]
                         pair = t[1]
                         new_scheme = neighbour.make_clustered_scheme(
-                                start_scheme, scheme_name, pair, pair_merged, the_config)
+                            start_scheme, scheme_name, pair, pair_merged, the_config
+                        )
                         r = self.analyse_scheme(new_scheme)
                         diff = r.score - start_score
                         diffs.append(diff)
 
-                    c_matrix = neighbour.update_c_matrix(c_matrix, sub_tuples, subsets, diffs)
-
+                    c_matrix = neighbour.update_c_matrix(
+                        c_matrix, sub_tuples, subsets, diffs
+                    )
 
                 # 4. Find the best pair of subsets, and build a scheme based on that
                 # note that this matrix includes diagonals, which will all be zero
@@ -231,7 +241,7 @@ class GreedyAnalysis(Analysis):
 
                 log.debug("Biggest improvement in info score: %s", str(best_change))
 
-                if best_change>=0:
+                if best_change >= 0:
                     log.info("Found no schemes that improve the score, stopping")
                     break
 
@@ -239,7 +249,8 @@ class GreedyAnalysis(Analysis):
 
                 best_merged = subset_ops.merge_subsets(best_pair)
                 best_scheme = neighbour.make_clustered_scheme(
-                    start_scheme, scheme_name, best_pair, best_merged, the_config)
+                    start_scheme, scheme_name, best_pair, best_merged, the_config
+                )
                 best_result = self.analyse_scheme(best_scheme)
 
                 # the best change can get updated a fraction at this point
@@ -247,14 +258,17 @@ class GreedyAnalysis(Analysis):
                 # is a little different from doing it on the one subset
                 best_change = self.results.best_score - start_score
 
+                log.info(
+                    "Best scheme combines subsets: '%s' and '%s'"
+                    % (best_pair[0].name, best_pair[1].name)
+                )
 
-                log.info("Best scheme combines subsets: '%s' and '%s'" %(best_pair[0].name, best_pair[1].name))
-
-
-                log.info("The best scheme improves the %s score by %.2f to %.1f",
+                log.info(
+                    "The best scheme improves the %s score by %.2f to %.1f",
                     the_config.model_selection,
                     np.abs(best_change),
-                    self.results.best_score)
+                    self.results.best_score,
+                )
                 start_scheme = best_scheme
                 start_score = best_result.score
 
@@ -262,26 +276,35 @@ class GreedyAnalysis(Analysis):
                 log.debug("Merged into: %s", str([best_merged.name]))
 
                 # 5. reset_c_matrix and the subset list
-                c_matrix = neighbour.reset_c_matrix(c_matrix, list(best_pair), [best_merged], subsets)
+                c_matrix = neighbour.reset_c_matrix(
+                    c_matrix, list(best_pair), [best_merged], subsets
+                )
 
                 # we updated the subset list in a special way, which matches how we update the c matrix:
-                subsets = neighbour.reset_subsets(subsets, list(best_pair), [best_merged])
+                subsets = neighbour.reset_subsets(
+                    subsets, list(best_pair), [best_merged]
+                )
 
                 if not the_config.quick:
-                    the_config.reporter.write_scheme_summary(
-                        best_scheme, best_result)
+                    the_config.reporter.write_scheme_summary(best_scheme, best_result)
 
                 step += 1
 
         log.info("Greedy algorithm finished after %d steps" % step)
-        log.info("Best scoring scheme is scheme %s, with %s score of %.3f"
-                 % (self.results.best_scheme.name, the_config.model_selection,
-                    self.results.best_score))
+        log.info(
+            "Best scoring scheme is scheme %s, with %s score of %.3f"
+            % (
+                self.results.best_scheme.name,
+                the_config.model_selection,
+                self.results.best_score,
+            )
+        )
 
         the_config.reporter.write_best_scheme(self.results)
 
+
 class RelaxedClusteringAnalysis(Analysis):
-    '''
+    """
     A fast relaxed clustering algorithm for heuristic partitioning searches
 
     1. Rank subsets by their similarity (defined by clustering-weights)
@@ -289,38 +312,54 @@ class RelaxedClusteringAnalysis(Analysis):
     3. Sequentially perform all groupings that imporve the AICc/BIC score, in order of improvement
     4. Analyse resulting scheme, iterate to 2.
     5. Quit if no improvements.
-    '''
+    """
 
     def clean_scheme(self, start_scheme):
         # Here we look for and fix up subsets that are too small or don't have all states
         keep_going = 1
         merges = 0
         if keep_going == 1:
-            with logtools.indented(log, "*** Checking subsets from scheme '%s' meet --min-subset-size and --all_states settings ***" %start_scheme.name):
+            with logtools.indented(
+                log,
+                "*** Checking subsets from scheme '%s' meet --min-subset-size and --all_states settings ***"
+                % start_scheme.name,
+            ):
                 while keep_going > 0:
 
                     subsets = [s for s in start_scheme.subsets]
 
                     # sort the subsets, to keep results consistent over re-runs
-                    subsets.sort(key = lambda x: 1.0/float(len(x.columns)))
+                    subsets.sort(key=lambda x: 1.0 / float(len(x.columns)))
 
                     # run through all subsets
                     for i, sub in enumerate(subsets):
                         found = 0
-                        state_problems = self.alignment.check_state_probs(sub, the_config)
+                        state_problems = self.alignment.check_state_probs(
+                            sub, the_config
+                        )
 
-                        if  (
-                                len(sub.columns) < the_config.min_subset_size or
-                                state_problems == True
-                            ):
+                        if (
+                            len(sub.columns) < the_config.min_subset_size
+                            or state_problems == True
+                        ):
 
                             # merge that subset with nearest neighbour
-                            new_pair = neighbour.get_closest_subset(sub, subsets, the_config)
+                            new_pair = neighbour.get_closest_subset(
+                                sub, subsets, the_config
+                            )
 
-                            log.info("Subset '%s' will be merged with subset '%s'" %(new_pair[0].name, new_pair[1].name))
+                            log.info(
+                                "Subset '%s' will be merged with subset '%s'"
+                                % (new_pair[0].name, new_pair[1].name)
+                            )
                             new_pair_merged = subset_ops.merge_subsets(new_pair)
                             start_scheme = neighbour.make_clustered_scheme(
-                                    start_scheme, "cleaned_scheme", new_pair, new_pair_merged, the_config)
+                                start_scheme,
+                                "cleaned_scheme",
+                                new_pair,
+                                new_pair_merged,
+                                the_config,
+                            )
                             the_config.progress.begin(1, 1)
                             self.analyse_scheme(start_scheme)
                             subsets = [s for s in start_scheme.subsets]
@@ -328,17 +367,21 @@ class RelaxedClusteringAnalysis(Analysis):
                             found = 1
                             break
 
-
                     # if we got to here, there were no subsets to merge
                     if found == 0:
                         keep_going = 0
 
                     if len(subsets) == 1:
-                        log.error("The settings you have used for --all-states and/or --min-subset-size mean that all of your subsets have been merged into one prior to any analysis. Thus, no analysis is necessary. Please check and try again")
+                        log.error(
+                            "The settings you have used for --all-states and/or --min-subset-size mean that all of your subsets have been merged into one prior to any analysis. Thus, no analysis is necessary. Please check and try again"
+                        )
                         raise AnalysisError
 
-                log.info("%d subsets merged because of --min-subset-size and/or --all-states settings" % merges)
-        return(start_scheme)
+                log.info(
+                    "%d subsets merged because of --min-subset-size and/or --all-states settings"
+                    % merges
+                )
+        return start_scheme
 
     @logtools.log_info(log, "Performing relaxed clustering analysis")
     def do_analysis(self):
@@ -349,42 +392,50 @@ class RelaxedClusteringAnalysis(Analysis):
 
         if the_config.cluster_max == -987654321:
             the_config.cluster_max = max([1000, (10 * len(the_config.user_subsets))])
-            log.info("Set rcluster-max to %d" %the_config.cluster_max) 
+            log.info("Set rcluster-max to %d" % the_config.cluster_max)
 
         scheme_count = submodels.count_relaxed_clustering_schemes(
-            partnum, the_config.cluster_percent, the_config.cluster_max)
+            partnum, the_config.cluster_percent, the_config.cluster_max
+        )
         subset_count = submodels.count_relaxed_clustering_subsets(
-            partnum, the_config.cluster_percent, the_config.cluster_max)
+            partnum, the_config.cluster_percent, the_config.cluster_max
+        )
 
-        log.info("PartitionFinder will have to analyse %d subsets to"
-                 " complete this analyses" % subset_count)
+        log.info(
+            "PartitionFinder will have to analyse %d subsets to"
+            " complete this analyses" % subset_count
+        )
         the_config.progress.begin(scheme_count, subset_count)
 
         # Start with the most partitioned scheme, and record it.
         with logtools.indented(log, "*** Analysing starting scheme ***"):
             the_config.progress.begin(scheme_count, partnum)
             start_scheme = scheme.create_scheme(
-                the_config, "start_scheme", range(partnum))
+                the_config, "start_scheme", range(partnum)
+            )
             start_result = self.analyse_scheme(start_scheme)
             start_score = start_result.score
             if not the_config.quick:
                 the_config.reporter.write_scheme_summary(
-                    self.results.best_scheme, self.results.best_result)
-
-
+                    self.results.best_scheme, self.results.best_result
+                )
 
         subsets = [s for s in start_scheme.subsets]
         partnum = len(subsets)
         step = 1
         while True:
-            with logtools.indented(log, "*** Relaxed clustering algorithm step %d of up to %d ***"
-                % (step, partnum - 1)):
+            with logtools.indented(
+                log,
+                "*** Relaxed clustering algorithm step %d of up to %d ***"
+                % (step, partnum - 1),
+            ):
 
                 # get distances between subsets
                 max_schemes = comb(len(start_scheme.subsets), 2)
                 log.info("Measuring the similarity of %d subset pairs" % max_schemes)
-                d_matrix = neighbour.get_distance_matrix(subsets,
-                    the_config.cluster_weights)
+                d_matrix = neighbour.get_distance_matrix(
+                    subsets, the_config.cluster_weights
+                )
 
                 if step == 1:
                     # Now initialise a change in info score matrix to inf
@@ -393,17 +444,21 @@ class RelaxedClusteringAnalysis(Analysis):
                     c_matrix = spatial.distance.squareform(c_matrix)
 
                 # 1. pick top N subset pairs from distance matrix
-                cutoff = int(math.ceil(max_schemes * (the_config.cluster_percent * 0.01)))
-                if cutoff <= 0: cutoff = 1
+                cutoff = int(
+                    math.ceil(max_schemes * (the_config.cluster_percent * 0.01))
+                )
+                if cutoff <= 0:
+                    cutoff = 1
                 if the_config.cluster_max != None and cutoff > the_config.cluster_max:
                     cutoff = the_config.cluster_max
                 log.info("Choosing the %d most similar subset pairs" % cutoff)
                 closest_pairs = neighbour.get_N_closest_subsets(
-                    subsets, the_config, cutoff, d_matrix)
+                    subsets, the_config, cutoff, d_matrix
+                )
 
                 # 2. analyse K subsets in top N that have not yet been analysed
                 pairs_todo = neighbour.get_pairs_todo(closest_pairs, c_matrix, subsets)
-                if len(pairs_todo)>0:
+                if len(pairs_todo) > 0:
                     log.info("Analysing %d new subset pairs" % len(pairs_todo))
                     new_subs = []
                     sub_tuples = []
@@ -418,17 +473,20 @@ class RelaxedClusteringAnalysis(Analysis):
                     # 3. for all K new subsets, update improvement matrix and find best pair
                     log.info("Finding the best partitioning scheme")
                     diffs = []
-                    scheme_name = "step_%d" %(step)
+                    scheme_name = "step_%d" % (step)
                     for t in sub_tuples:
                         pair_merged = t[0]
                         pair = t[1]
                         new_scheme = neighbour.make_clustered_scheme(
-                                start_scheme, scheme_name, pair, pair_merged, the_config)
+                            start_scheme, scheme_name, pair, pair_merged, the_config
+                        )
                         r = self.analyse_scheme(new_scheme)
                         diff = r.score - start_score
                         diffs.append(diff)
 
-                    c_matrix = neighbour.update_c_matrix(c_matrix, sub_tuples, subsets, diffs)
+                    c_matrix = neighbour.update_c_matrix(
+                        c_matrix, sub_tuples, subsets, diffs
+                    )
 
                 # 4. Find the best pair of subsets, and build a scheme based on that
                 # note that this matrix includes diagonals, which will all be zero
@@ -438,36 +496,47 @@ class RelaxedClusteringAnalysis(Analysis):
                 best_change = np.amin(c_matrix)
                 best_scheme = start_scheme
 
-                if best_change>=0:
+                if best_change >= 0:
                     log.info("Found no schemes that improve the score, stopping")
                     break
 
-                median_improvement = np.median(c_matrix[c_matrix<0])
+                median_improvement = np.median(c_matrix[c_matrix < 0])
 
                 while best_change <= median_improvement:
 
                     best_pair = neighbour.get_best_pair(c_matrix, best_change, subsets)
                     best_merged = subset_ops.merge_subsets(best_pair)
                     best_scheme = neighbour.make_clustered_scheme(
-                        start_scheme, scheme_name, best_pair, best_merged, the_config)
+                        start_scheme, scheme_name, best_pair, best_merged, the_config
+                    )
                     start_scheme = best_scheme
 
-                    log.info("Combining subsets: '%s' and '%s'" %(best_pair[0].name, best_pair[1].name))
-                    log.debug("This improves the %s score by: %s", the_config.model_selection, str(abs(best_change)))
+                    log.info(
+                        "Combining subsets: '%s' and '%s'"
+                        % (best_pair[0].name, best_pair[1].name)
+                    )
+                    log.debug(
+                        "This improves the %s score by: %s",
+                        the_config.model_selection,
+                        str(abs(best_change)),
+                    )
 
                     # reset_c_matrix and the subset list
-                    c_matrix = neighbour.reset_c_matrix(c_matrix, list(best_pair), [best_merged], subsets)
+                    c_matrix = neighbour.reset_c_matrix(
+                        c_matrix, list(best_pair), [best_merged], subsets
+                    )
 
                     # we update the subset list in a way that means its structure tracks the c-matrix
-                    subsets = neighbour.reset_subsets(subsets, list(best_pair), [best_merged])
+                    subsets = neighbour.reset_subsets(
+                        subsets, list(best_pair), [best_merged]
+                    )
 
                     best_change = np.amin(c_matrix)
 
-                    if the_config.search == 'rcluster':
+                    if the_config.search == "rcluster":
                         break
                         # otherwise we are using rclusterf, which continues in this loop
                         # i.e. with rcluster we just take the single best change
-
 
                 # the best change can get updated a fraction at this point
                 # because calaculting the info score on the whole alignment
@@ -475,20 +544,18 @@ class RelaxedClusteringAnalysis(Analysis):
                 best_result = self.analyse_scheme(best_scheme)
                 best_change = self.results.best_score - start_score
 
-
-                log.info("The best scheme has %d subsets and improves the %s score by %.2f to %.1f",
+                log.info(
+                    "The best scheme has %d subsets and improves the %s score by %.2f to %.1f",
                     len(best_scheme.subsets),
                     the_config.model_selection,
                     np.abs(best_change),
-                    self.results.best_score)
+                    self.results.best_score,
+                )
                 start_scheme = best_scheme
                 start_score = best_result.score
 
-
                 if not the_config.quick:
-                    the_config.reporter.write_scheme_summary(
-                        best_scheme, best_result)
-
+                    the_config.reporter.write_scheme_summary(best_scheme, best_result)
 
                 if len(set(start_scheme.subsets)) == 1:
                     break
@@ -496,9 +563,10 @@ class RelaxedClusteringAnalysis(Analysis):
                 step += 1
 
         log.info("Relaxed clustering algorithm finished after %d steps" % step)
-        log.info("Best scoring scheme is scheme %s, with %s score of %.3f"
-                 % (self.results.best_scheme.name, model_selection,
-                    self.results.best_score))
+        log.info(
+            "Best scoring scheme is scheme %s, with %s score of %.3f"
+            % (self.results.best_scheme.name, model_selection, self.results.best_score)
+        )
 
         if the_config.min_subset_size or the_config.all_states:
             best_scheme = self.clean_scheme(self.results.best_scheme)
@@ -508,16 +576,19 @@ class RelaxedClusteringAnalysis(Analysis):
             self.results.best_result = best_result
             self.results.best_score = best_result.score
             self.results.best_scheme = best_scheme
-            log.info("Best scoring scheme after cleaning is scheme %s, with %s score of %.3f"
-                     % (self.results.best_scheme.name, model_selection,
-                        self.results.best_score))
-
+            log.info(
+                "Best scoring scheme after cleaning is scheme %s, with %s score of %.3f"
+                % (
+                    self.results.best_scheme.name,
+                    model_selection,
+                    self.results.best_score,
+                )
+            )
 
         the_config.reporter.write_best_scheme(self.results)
 
 
 class KmeansAnalysis(Analysis):
-
 
     def split_subsets(self, start_subsets, tree_path):
         split_subs = {}
@@ -526,51 +597,71 @@ class KmeansAnalysis(Analysis):
             # here we can test if the alignment has all states:
             state_probs = self.alignment.check_state_probs(sub, the_config)
 
-            if  (
-                    len(sub.columns) == 1 or
-                    len(sub.columns) < the_config.min_subset_size or
-                    state_probs == True or
-                    sub.dont_split == True
-                ):
+            if (
+                len(sub.columns) == 1
+                or len(sub.columns) < the_config.min_subset_size
+                or state_probs == True
+                or sub.dont_split == True
+            ):
                 split_subs[sub] = [sub]
-                log.info("Subset %d: %d sites not splittable" %(i+1, len(sub.columns)))
+                log.info(
+                    "Subset %d: %d sites not splittable" % (i + 1, len(sub.columns))
+                )
             else:
                 split = kmeans.kmeans_split_subset(
-                    the_config, self.alignment, sub, tree_path, n_jobs=self.threads)
+                    the_config, self.alignment, sub, tree_path, n_jobs=self.threads
+                )
 
                 if split == 1:  # we couldn't analyse the big subset
-                    sub.dont_split = True # never try to split this subset again
+                    sub.dont_split = True  # never try to split this subset again
                     split_subs[sub] = [sub]  # so we keep it whole
-                    log.info("Subset %d: %d sites not splittable" %(i+1, len(sub.columns)))
+                    log.info(
+                        "Subset %d: %d sites not splittable" % (i + 1, len(sub.columns))
+                    )
 
                 elif len(split) == 1:
                     # in some cases (i.e. all site params are equal) kmeans
                     # cannot split subsets, so we get back the same as we put in
-                    sub.dont_split = True # never try to split this subset again
+                    sub.dont_split = True  # never try to split this subset again
                     split_subs[sub] = [sub]  # so we keep it whole
-                    log.info("Subset %d: %d sites not splittable" %(i+1, len(sub.columns)))
-
-                elif min([len(split[0].columns), len(split[1].columns)]) < the_config.min_subset_size:
-                    # we don't split it if either of the two daughter subset was
-                    # smaller than the minimum allowable size
-                    sub.dont_split = True # never try to split this subset again
-                    split_subs[sub] = [sub]  # so we keep it whole
-                    log.info("Subset %d: %d sites not splittable" %(i+1, len(sub.columns)))
+                    log.info(
+                        "Subset %d: %d sites not splittable" % (i + 1, len(sub.columns))
+                    )
 
                 elif (
-                        self.alignment.check_state_probs(split[0], the_config) or
-                        self.alignment.check_state_probs(split[1], the_config)
-                     ):
+                    min([len(split[0].columns), len(split[1].columns)])
+                    < the_config.min_subset_size
+                ):
+                    # we don't split it if either of the two daughter subset was
+                    # smaller than the minimum allowable size
+                    sub.dont_split = True  # never try to split this subset again
+                    split_subs[sub] = [sub]  # so we keep it whole
+                    log.info(
+                        "Subset %d: %d sites not splittable" % (i + 1, len(sub.columns))
+                    )
+
+                elif self.alignment.check_state_probs(
+                    split[0], the_config
+                ) or self.alignment.check_state_probs(split[1], the_config):
                     # we don't split it if either of the daughter subsets has problems with
                     # the state frequencies
-                    sub.dont_split = True # never try to split this subset again
+                    sub.dont_split = True  # never try to split this subset again
                     split_subs[sub] = [sub]  # so we keep it whole
-                    log.info("Subset %d: %d sites not splittable" %(i+1, len(sub.columns)))
+                    log.info(
+                        "Subset %d: %d sites not splittable" % (i + 1, len(sub.columns))
+                    )
 
                 else:  # we could analyse the big subset
                     split_subs[sub] = split  # so we split it into >1
-                    log.info("Subset %d: %d sites split into %d and %d"
-                            %(i+1, len(sub.columns), len(split[0].columns), len(split[1].columns)))
+                    log.info(
+                        "Subset %d: %d sites split into %d and %d"
+                        % (
+                            i + 1,
+                            len(sub.columns),
+                            len(split[0].columns),
+                            len(split[1].columns),
+                        )
+                    )
 
         return split_subs
 
@@ -582,13 +673,17 @@ class KmeansAnalysis(Analysis):
             # here we put a sensible lower limit on the size of subsets
             if len(s.columns) < the_config.min_subset_size:
                 s.fabricated = True
-                log.debug("Subset %s with only %d sites found" %(s.subset_id, len(s.columns)))
+                log.debug(
+                    "Subset %s with only %d sites found" % (s.subset_id, len(s.columns))
+                )
 
             # here we can test if the alignment has all states:
             state_probs = self.alignment.check_state_probs(s, the_config)
             if state_probs:
                 s.fabricated = True
-                log.debug("Subset %s does not have all states in the alignment", s.subset_id)
+                log.debug(
+                    "Subset %s does not have all states in the alignment", s.subset_id
+                )
 
             if s.fabricated:
                 fabricated_subsets.append(s)
@@ -596,8 +691,10 @@ class KmeansAnalysis(Analysis):
 
         if fabricated_subsets:
             with logtools.indented(log, "Finalising partitioning scheme"):
-                log.debug("There are %d/%d fabricated subsets"
-                          % (len(fabricated_subsets), len(start_subsets)))
+                log.debug(
+                    "There are %d/%d fabricated subsets"
+                    % (len(fabricated_subsets), len(start_subsets))
+                )
 
                 i = 1
                 while fabricated_subsets:
@@ -615,9 +712,12 @@ class KmeansAnalysis(Analysis):
 
                     s = fabricated_subsets.pop(0)
 
-                    log.debug("Working on fabricated subset %s with %d sites" %(s.subset_id, len(s.columns)))
+                    log.debug(
+                        "Working on fabricated subset %s with %d sites"
+                        % (s.subset_id, len(s.columns))
+                    )
                     log.info("Finalising subset %d", i)
-                    i = i+1
+                    i = i + 1
 
                     all_subs.remove(s)
 
@@ -650,7 +750,7 @@ class KmeansAnalysis(Analysis):
                     self.analyse_list_of_subsets([merged_sub])
 
                     # here we put a sensible lower limit on the size of subsets
-                    if len(merged_sub.columns)<the_config.min_subset_size:
+                    if len(merged_sub.columns) < the_config.min_subset_size:
                         merged_sub.fabricated = True
 
                     # if joined has to be fabricated, add to fabricated list
@@ -672,13 +772,17 @@ class KmeansAnalysis(Analysis):
         for i, sub in enumerate(start_subsets):
             if len(sub.columns) == 1:
                 new_scheme_subs.append(sub)
-                log.debug("Split %d: parent subset has only one site, %s unchanged" %
-                         (i+1, the_config.model_selection.upper()))
+                log.debug(
+                    "Split %d: parent subset has only one site, %s unchanged"
+                    % (i + 1, the_config.model_selection.upper())
+                )
 
             elif sub.fabricated or sub.dont_split:
                 new_scheme_subs.append(sub)
-                log.debug("Split %d: parent subset couldn't be analysed, %s unchanged" %
-                         (i+1, the_config.model_selection.upper()))
+                log.debug(
+                    "Split %d: parent subset couldn't be analysed, %s unchanged"
+                    % (i + 1, the_config.model_selection.upper())
+                )
 
             else:  # compare split to un-split
                 log.debug("Splitting new subset")
@@ -696,13 +800,18 @@ class KmeansAnalysis(Analysis):
 
                 if fabrications == 0:
 
-                    score_diff = subset_ops.subset_list_score_diff(split_subsets, [sub], the_config, self.alignment)
+                    score_diff = subset_ops.subset_list_score_diff(
+                        split_subsets, [sub], the_config, self.alignment
+                    )
 
-                    log.info("Subset %d: split changed %s by: %.1f" %
-                             (i+1, the_config.model_selection.upper(),
-                              score_diff))
+                    log.info(
+                        "Subset %d: split changed %s by: %.1f"
+                        % (i + 1, the_config.model_selection.upper(), score_diff)
+                    )
 
-                    lnL, sum_k, subs_len = subset_ops.subset_list_stats([sub], the_config, self.alignment)
+                    lnL, sum_k, subs_len = subset_ops.subset_list_stats(
+                        [sub], the_config, self.alignment
+                    )
 
                     per_site_improvement = score_diff / subs_len
 
@@ -731,13 +840,18 @@ class KmeansAnalysis(Analysis):
         # to take care of this problem so that the best AND analysable scheme
         # is the one that gets automatically flagged as the best scheme
         log.info("** Kmeans algorithm finished after %d steps **" % (step))
-        log.info("Best scoring scheme has %d subsets and a %s score of %.3f"
-                 % (
-        len(self.results.best_scheme.subsets), the_config.model_selection,
-        self.results.best_score))
+        log.info(
+            "Best scoring scheme has %d subsets and a %s score of %.3f"
+            % (
+                len(self.results.best_scheme.subsets),
+                the_config.model_selection,
+                self.results.best_score,
+            )
+        )
         the_config.reporter.write_best_scheme(self.results)
 
-        log.warning("USE CAUTION: \
+        log.warning(
+            "USE CAUTION: \
             There is increasing evidence that the kmeans \
             algorithm can lead to poor inferences, so we have \
             discontinued its use for most data types \
@@ -749,15 +863,14 @@ class KmeansAnalysis(Analysis):
             data, but warn users that the method is: experimental, \
             untested on morphological data (either empirical or \
             simulated), and may give incorrect topologies and branch \
-            lengths (see link to paper above)." 
-            )
-
-
+            lengths (see link to paper above)."
+        )
 
     def setup(self):
 
-        if the_config.datatype != 'morphology':
-            log.warning("METHOD DISCONTINUED: \
+        if the_config.datatype != "morphology":
+            log.warning(
+                "METHOD DISCONTINUED: \
                 There is increasing evidence that the kmeans \
                 algorithm can lead to poor inferences, so we have \
                 discontinued its use for most data types. \
@@ -767,10 +880,11 @@ class KmeansAnalysis(Analysis):
                 information on the empirical issues \
                 can be found in this paper: \
                 http://www.sciencedirect.com/science/article/pii/S1055790316302780."
-                )
+            )
             raise AnalysisError
         else:
-            log.warning("USE CAUTION: \
+            log.warning(
+                "USE CAUTION: \
                 There is increasing evidence that the kmeans \
                 algorithm can lead to poor inferences, so we have \
                 discontinued its use for most data types \
@@ -782,9 +896,8 @@ class KmeansAnalysis(Analysis):
                 data, but warn users that the method is: experimental, \
                 untested on morphological data (either empirical or \
                 simulated), and may give incorrect topologies and branch \
-                lengths (see link to paper above)." 
-                )
-
+                lengths (see link to paper above)."
+            )
 
         # set the default subset size to 100 for kmeans analyses
         if the_config.min_subset_size == False:
@@ -796,33 +909,40 @@ class KmeansAnalysis(Analysis):
         # Start with the most partitioned scheme
         start_description = range(partnum)
         start_scheme = scheme.create_scheme(
-            the_config, "start_scheme", start_description)
+            the_config, "start_scheme", start_description
+        )
 
-        site_max = sum([ len(s.columns) for s in start_scheme.subsets])
+        site_max = sum([len(s.columns) for s in start_scheme.subsets])
 
         if the_config.min_subset_size > site_max:
-            log.error("The minimum subset size must be smaller than the \
+            log.error(
+                "The minimum subset size must be smaller than the \
                 total number of sites you want to analyse. Your minimum \
                 subset size is %d, and your alignment is %d sites. Please \
-                check and try again." %(the_config.min_subset_size, site_max)
-                )
+                check and try again."
+                % (the_config.min_subset_size, site_max)
+            )
             raise AnalysisError
 
-
-        with logtools.indented(log, "**Analysing starting scheme (scheme %s)**" % start_scheme.name):
+        with logtools.indented(
+            log, "**Analysing starting scheme (scheme %s)**" % start_scheme.name
+        ):
             start_result = self.analyse_scheme(start_scheme)
 
             if not the_config.quick:
                 the_config.reporter.write_scheme_summary(start_scheme, start_result)
 
             tree_path = the_config.processor.make_tree_path(
-                self.filtered_alignment_path)
+                self.filtered_alignment_path
+            )
 
-        if the_config.kmeans == 'tiger' and the_config.datatype != 'morphology':
-            log.error("You have selected kmeans and tiger \
+        if the_config.kmeans == "tiger" and the_config.datatype != "morphology":
+            log.error(
+                "You have selected kmeans and tiger \
                 rates. This is an unsupported option for anything except \
                 morphological data. The kmeans algorithm \
-                now works with entropies, not TIGER rates.")
+                now works with entropies, not TIGER rates."
+            )
             raise AnalysisError
 
         return start_result, start_scheme, tree_path
@@ -842,31 +962,37 @@ class KmeansAnalysis(Analysis):
             for vals in split_subs.values():
                 subs.extend(vals)
 
+        log.debug("%d subsets successfully split" % (len(subs) - len(start_subsets)))
 
-        log.debug("%d subsets successfully split" %(len(subs) - len(start_subsets)))
-
-        with logtools.indented(log, "Calculating scores of all new subsets that can be analysed"):
+        with logtools.indented(
+            log, "Calculating scores of all new subsets that can be analysed"
+        ):
             self.analyse_list_of_subsets(subs)
 
             # 3. Build new list of subsets
-            new_scheme_subs = self.build_new_subset_list(name_prefix, split_subs, start_subsets)
-
+            new_scheme_subs = self.build_new_subset_list(
+                name_prefix, split_subs, start_subsets
+            )
 
         # 4. Are we done yet?
         if len(new_scheme_subs) == len(list(start_subsets)):
-            log.info("""Could not improve %s score. Kmeans algorithm finished."""
-                     % (the_config.model_selection))
+            log.info(
+                """Could not improve %s score. Kmeans algorithm finished."""
+                % (the_config.model_selection)
+            )
             done = True
         else:
             n_splits = len(new_scheme_subs) - len(start_subsets)
 
             if n_splits > 1:
-                t = 'subsets'
+                t = "subsets"
             else:
-                t = 'subset'
-            log.info("""The %s score of %d %s
+                t = "subset"
+            log.info(
+                """The %s score of %d %s
                      improved when split"""
-                     % (the_config.model_selection, n_splits, t))
+                % (the_config.model_selection, n_splits, t)
+            )
 
             start_subsets = new_scheme_subs
 
@@ -876,8 +1002,8 @@ class KmeansAnalysis(Analysis):
 
     def reassign_invariant_sites(self, subsets):
 
-        #TODO add a skip:
-        #if(len(subsets)==1):
+        # TODO add a skip:
+        # if(len(subsets)==1):
         #   return(subsets)
 
         # get entropies for whole alignment for this subset
@@ -901,7 +1027,7 @@ class KmeansAnalysis(Analysis):
             sch_dict[r] = sch_dict[replacements[r]]
 
         # now build subsets according to the new sites
-        sub_dict = {} # this gives us the subsets to build
+        sub_dict = {}  # this gives us the subsets to build
         for k, v in sch_dict.iteritems():
             sub_dict.setdefault(v, []).append(k)
 
@@ -910,18 +1036,17 @@ class KmeansAnalysis(Analysis):
             n = Subset(the_config, set(sub_dict[s]))
             new_subsets.append(n)
 
-        return(new_subsets)
-
+        return new_subsets
 
     @logtools.log_info(log, "Performing k-means Analysis")
     def do_analysis(self):
-        '''A kmeans algorithm for heuristic partitioning searches'''
+        """A kmeans algorithm for heuristic partitioning searches"""
 
         start_result, start_scheme, tree_path = self.setup()
 
         step = 0
 
-        start_subsets = list(start_scheme.subsets) # we only work on lists of subsets
+        start_subsets = list(start_scheme.subsets)  # we only work on lists of subsets
 
         self.analyse_list_of_subsets(start_subsets)
 
@@ -930,18 +1055,20 @@ class KmeansAnalysis(Analysis):
 
         for s in start_subsets:
             if s.fabricated:
-                log.error("""One or more of your starting datablocks could not
+                log.error(
+                    """One or more of your starting datablocks could not
                           be analysed. Please check your data and try again.
                           One way to fix this is to join your small datablocks
-                          together into larger datablocks""")
+                          together into larger datablocks"""
+                )
                 raise AnalysisError
 
         while True:
             step += 1
-            with logtools.indented(log, "***k-means algorithm step %d***"
-                    % step):
+            with logtools.indented(log, "***k-means algorithm step %d***" % step):
                 done, start_subsets = self.one_kmeans_step(
-                    start_subsets, step, tree_path)
+                    start_subsets, step, tree_path
+                )
 
             if done:
                 break
@@ -951,11 +1078,13 @@ class KmeansAnalysis(Analysis):
 
         # Finally, for krmeans, we put the invariant sites back with their
         # nearest variable neighbours
-        if the_config.search == 'krmeans':
+        if the_config.search == "krmeans":
             log.info("Reassigning invariant sites for krmeans algorithm")
             # the definition of krmeans is that we reassign the zero entropies
             final_subsets = self.reassign_invariant_sites(final_scheme.subsets)
-            final_scheme = scheme.Scheme(the_config, "final_scheme_reassigned", final_subsets)
+            final_scheme = scheme.Scheme(
+                the_config, "final_scheme_reassigned", final_subsets
+            )
 
         log.info("Analysing final scheme")
 
@@ -966,24 +1095,23 @@ class KmeansAnalysis(Analysis):
         if not the_config.quick:
             the_config.reporter.write_scheme_summary(final_scheme, final_result)
 
-
-        return(final_scheme)
+        return final_scheme
 
 
 def choose_method(search):
-    if search == 'all':
+    if search == "all":
         method = AllAnalysis
-    elif search == 'user':
+    elif search == "user":
         method = UserAnalysis
-    elif search == 'greedy':
+    elif search == "greedy":
         method = GreedyAnalysis
-    elif search == 'hcluster':
+    elif search == "hcluster":
         method = StrictClusteringAnalysis
-    elif search == 'rcluster':
+    elif search == "rcluster":
         method = RelaxedClusteringAnalysis
-    elif search == 'rclusterf':
+    elif search == "rclusterf":
         method = RelaxedClusteringAnalysis
-    elif search == 'kmeans' or search == 'krmeans':
+    elif search == "kmeans" or search == "krmeans":
         method = KmeansAnalysis
     else:
         log.error("Search algorithm '%s' is not recognised", search)

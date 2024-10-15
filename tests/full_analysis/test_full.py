@@ -6,11 +6,11 @@ from zipfile import ZipFile, ZIP_DEFLATED
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 organise_tests = {
-    "dna"               : ["DNA%d" % n for n in range(1, 9)],
-    "prot"              : ["prot%d" % n for n in range(1, 9)],
-    "rerun_success"     : ["rerun%02d" % int(n) for n in "1 2 3 4 5 6 7 8".split()],
-    "rerun_pf_error"    : ["rerun%02d" % int(n) for n in "9 10 11 12 13 20 21".split()],
-    "rerun_ana_error"   : ["rerun%02d" % int(n) for n in "14 15".split()],
+    "dna": ["DNA%d" % n for n in range(1, 9)],
+    "prot": ["prot%d" % n for n in range(1, 9)],
+    "rerun_success": ["rerun%02d" % int(n) for n in "1 2 3 4 5 6 7 8".split()],
+    "rerun_pf_error": ["rerun%02d" % int(n) for n in "9 10 11 12 13 20 21".split()],
+    "rerun_ana_error": ["rerun%02d" % int(n) for n in "14 15".split()],
 }
 
 
@@ -32,7 +32,7 @@ def test_prot(prot):
 
 
 def load_rerun(pth):
-    dna3 = ZipFile(os.path.join(HERE, 'DNA3-analysis.zip'))
+    dna3 = ZipFile(os.path.join(HERE, "DNA3-analysis.zip"))
     dna3.extractall(pth)
 
 
@@ -54,4 +54,3 @@ def test_rerun_analysis_error(rerun_ana_error):
     load_rerun(full_path)
     with pytest.raises(analysis.AnalysisError):
         main.call_main("DNA", '--no-ml-tree "%s"' % full_path)
-

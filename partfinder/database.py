@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
@@ -33,7 +34,7 @@ float_type = numpy.float32
 def _model_string_maxlen():
     """Calculate the field size needed for model ids"""
     # hardcoded for convenience. Could be dynamically set in future.
-    # the current longest is: BLOSUM62+I+G+X, i.e. 14 chars. 
+    # the current longest is: BLOSUM62+I+G+X, i.e. 14 chars.
     # so we just over double it, for safety
 
     return 30
@@ -45,16 +46,16 @@ class DataLayout(object):
         if letters is not None:
             self.make_results_and_freqs()
         else:
-            # We just fake an entry, 
-            self.letter_indexes = { 'EMPTY': 0 }
-            self.rate_indexes = { 'EMPTY': 0 }
+            # We just fake an entry,
+            self.letter_indexes = {"EMPTY": 0}
+            self.rate_indexes = {"EMPTY": 0}
             self.letter_size = 1
             self.rate_size = 1
 
         self.data_type = self.make_datatype()
 
     def make_results_and_freqs(self):
-        l = list(self.letters) 
+        l = list(self.letters)
         self.letter_indexes = dict(zip(l, range(len(l))))
         self.letter_size = len(self.letter_indexes)
 
@@ -67,7 +68,7 @@ class DataLayout(object):
             ri["%s_%s" % (t, f)] = i
 
         self.rate_indexes = ri
-        self.rate_size = len(ri) / 2 
+        self.rate_size = len(ri) / 2
 
     def get_empty_record(self):
         return numpy.zeros(1, self.data_type)
@@ -78,10 +79,10 @@ class DataLayout(object):
         model_id_length = _model_string_maxlen()
 
         layout = [
-            ('subset_id', 'S{}'.format(subset_id_length)),
-            ('model_id', 'S{}'.format(model_id_length)),
-            ('seconds', int_type),
-            ('params', int_type),
+            ("subset_id", "S{}".format(subset_id_length)),
+            ("model_id", "S{}".format(model_id_length)),
+            ("seconds", int_type),
+            ("params", int_type),
         ]
 
         # Now add the floating point fields
@@ -91,10 +92,12 @@ class DataLayout(object):
 
         # Now add frequencies and rate. These are added as embedded in an extra dimension
 
-        layout.extend([
-            ('freqs', float_type, self.letter_size),
-            ('rates', float_type, self.rate_size),
-        ])
+        layout.extend(
+            [
+                ("freqs", float_type, self.letter_size),
+                ("rates", float_type, self.rate_size),
+            ]
+        )
 
         # Now construct the numpy datatype that gives us the layout
         return numpy.dtype(layout)
@@ -102,7 +105,7 @@ class DataLayout(object):
 
 class DataRecord(object):
     def __init__(self, cfg):
-        self.__dict__['_data'] = cfg.data_layout.get_empty_record()
+        self.__dict__["_data"] = cfg.data_layout.get_empty_record()
 
     def __getattr__(self, name):
         return self._data[name]
@@ -112,23 +115,29 @@ class DataRecord(object):
 
     def __str__(self):
         return "DataRecord<lnl:%s, tree_size:%s, secs:%s>" % (
-            self.lnl, self.site_rate, self.seconds)
+            self.lnl,
+            self.site_rate,
+            self.seconds,
+        )
 
 
 class Database(object):
 
     def __init__(self, cfg):
         self.cfg = cfg
-        self.path = os.path.join(self.cfg.subsets_path, 'data.db')
+        self.path = os.path.join(self.cfg.subsets_path, "data.db")
         self.results = None
         if os.path.exists(self.path):
             try:
-                self.h5 = tables.open_file(self.path, 'a')
+                self.h5 = tables.open_file(self.path, "a")
                 self.results = self.h5.root.results
             except:
                 # If anything fails, we just create a new database...
-                log.warning("""Failed to open existing database at %s, or
-                database is corrupted. Creating a new one""", self.path)
+                log.warning(
+                    """Failed to open existing database at %s, or
+                database is corrupted. Creating a new one""",
+                    self.path,
+                )
                 self.results = None
 
         # Something went wrong!
@@ -140,19 +149,19 @@ class Database(object):
                 pass
 
             # Compression is good -- and faster, according to the pytables docs...
-            f = tables.Filters(complib='blosc', complevel=5)
-            self.h5 = tables.open_file(self.path, 'w', filters=f)
+            f = tables.Filters(complib="blosc", complevel=5)
+            self.h5 = tables.open_file(self.path, "w", filters=f)
             self.results = self.h5.create_table(
-                '/', 'results', cfg.data_layout.data_type)
+                "/", "results", cfg.data_layout.data_type
+            )
             self.results.cols.subset_id.create_csindex()
 
         assert isinstance(self.results, tables.Table)
         assert self.results.indexed
 
     def get_results_for_subset(self, subset):
-        conditions = {'current_id':  subset.subset_id}
-        matching = self.results.read_where(
-            'subset_id == current_id', conditions)
+        conditions = {"current_id": subset.subset_id}
+        matching = self.results.read_where("subset_id == current_id", conditions)
         return matching
 
     def is_empty(self):
@@ -161,7 +170,7 @@ class Database(object):
     def save_result(self, subset, n):
         # We have to take a slice here, as pytables can't handle single
         # elements
-        self.results.append(subset.result_array[n:n+1])
+        self.results.append(subset.result_array[n : n + 1])
         self.cfg.database.results.flush()
 
     def close(self):

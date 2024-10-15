@@ -16,6 +16,7 @@
 # and conditions as well.
 
 import logtools
+
 log = logtools.get_logger()
 
 import os
@@ -51,7 +52,7 @@ class AnalysisResults(object):
             self.best_scheme = sch
 
     def get_dump_path(self, cfg):
-        return os.path.join(cfg.base_path, 'results.bin')
+        return os.path.join(cfg.base_path, "results.bin")
 
     def get_result_fields(self):
         flds = []
@@ -62,19 +63,22 @@ class AnalysisResults(object):
     def dump(self, cfg):
         pth = self.get_dump_path(cfg)
         log.info("Dumping all results to '%s'", pth)
-        f = open(pth, 'wb')
+        f = open(pth, "wb")
         pickle.dump(self.get_result_fields(), f, -1)
 
     def compare(self, cfg):
         """We only compare the best result!"""
         pth = self.get_dump_path(cfg)
         if not os.path.exists(pth):
-            log.error("Previous results file not found at '%s'. "
-                      "Did you run --dump-results previously?", pth)
+            log.error(
+                "Previous results file not found at '%s'. "
+                "Did you run --dump-results previously?",
+                pth,
+            )
             raise ComparisonError
 
         log.info("Loading old results from '%s'", pth)
-        f = open(pth, 'rb')
+        f = open(pth, "rb")
         old_fields = pickle.load(f)
         f.close()
 
@@ -86,7 +90,10 @@ class AnalysisResults(object):
         errors = 0
         for nm, oldv, curv in zip(_check_fields, old_fields, cur_fields):
             if abs(oldv - curv) > self.MAX_ERROR:
-                log.error("Differences were more than acceptable value of %s", AnalysisResults.MAX_ERROR)
+                log.error(
+                    "Differences were more than acceptable value of %s",
+                    AnalysisResults.MAX_ERROR,
+                )
                 log.error("Old %s value: %s, new %s value %s", nm, oldv, nm, curv)
                 errors += 1
 
@@ -95,4 +102,5 @@ class AnalysisResults(object):
         else:
             log.info(
                 "All results were within an acceptable %s of the dumped results",
-                AnalysisResults.MAX_ERROR)
+                AnalysisResults.MAX_ERROR,
+            )

@@ -23,12 +23,13 @@ import itertools
 from util import PartitionFinderError
 
 import logtools
+
 log = logtools.get_logger()
 
 
 def get_ranked_list(distance_matrix, subsets, N):
     """
-    Return the N closest pairs of subsets in 'subsets' 
+    Return the N closest pairs of subsets in 'subsets'
     """
 
     # TODO. If/when anaconda moves to numpy v1.8, we can use
@@ -39,16 +40,17 @@ def get_ranked_list(distance_matrix, subsets, N):
     closest = distance_matrix.argsort()[:N]
     n = len(subsets)
     ti = np.triu_indices(n, 1)
-    r  = zip(ti[0][closest] + 1, ti[1][closest] + 1)
+    r = zip(ti[0][closest] + 1, ti[1][closest] + 1)
 
     # and we look up all the subsets that correspond to each distance
     # and add it to our ordered list of subset lists
     ordered_subsets = []
     for i, pair in enumerate(r):
-        subset_group = [subsets[i-1] for i in pair]
+        subset_group = [subsets[i - 1] for i in pair]
         ordered_subsets.append(subset_group)
 
     return ordered_subsets
+
 
 def get_manhattan_matrix(rates, freqs, model, alpha, weights):
 
@@ -58,54 +60,59 @@ def get_manhattan_matrix(rates, freqs, model, alpha, weights):
     distance_arrays = []
 
     if weights["rate"] > 0:
-        r_dists = scipy.spatial.distance.pdist(np.array(rates), 'cityblock')
-        if np.amax(r_dists)>0:        
-            norm = float(weights["rate"])/float(np.amax(r_dists))
+        r_dists = scipy.spatial.distance.pdist(np.array(rates), "cityblock")
+        if np.amax(r_dists) > 0:
+            norm = float(weights["rate"]) / float(np.amax(r_dists))
             r_dists = np.multiply(r_dists, norm)
         distance_arrays.append(r_dists)
     if weights["freqs"] > 0:
-        f_dists = scipy.spatial.distance.pdist(np.array(freqs), 'cityblock')
-        if np.amax(f_dists)>0:
-            norm = float(weights["freqs"])/float(np.amax(f_dists))
+        f_dists = scipy.spatial.distance.pdist(np.array(freqs), "cityblock")
+        if np.amax(f_dists) > 0:
+            norm = float(weights["freqs"]) / float(np.amax(f_dists))
             f_dists = np.multiply(f_dists, norm)
         distance_arrays.append(f_dists)
     if weights["model"] > 0:
-        m_dists = scipy.spatial.distance.pdist(np.array(model), 'cityblock')
-        if np.amax(m_dists)>0:
-            norm = float(weights["model"])/float(np.amax(m_dists))
+        m_dists = scipy.spatial.distance.pdist(np.array(model), "cityblock")
+        if np.amax(m_dists) > 0:
+            norm = float(weights["model"]) / float(np.amax(m_dists))
             m_dists = np.multiply(m_dists, norm)
         distance_arrays.append(m_dists)
     if weights["alpha"] > 0:
-        a_dists = scipy.spatial.distance.pdist(np.array(alpha), 'cityblock')
-        if np.amax(a_dists)>0:
-            norm = float(weights["alpha"])/float(np.amax(a_dists))
+        a_dists = scipy.spatial.distance.pdist(np.array(alpha), "cityblock")
+        if np.amax(a_dists) > 0:
+            norm = float(weights["alpha"]) / float(np.amax(a_dists))
             a_dists = np.multiply(a_dists, norm)
         distance_arrays.append(a_dists)
 
-    try: 
+    try:
         final_dists = distance_arrays[0]
     except:
         # no distance arrays, something odd happened
-        log.error("Problem calculating subset similarity. Please check that you included"
-                " at least one non-zero weight in your clustering weights")
+        log.error(
+            "Problem calculating subset similarity. Please check that you included"
+            " at least one non-zero weight in your clustering weights"
+        )
         raise PartitionFinderError
 
     for a in distance_arrays[1:]:
         try:
             final_dists = np.add(final_dists, a)
         except:
-            log.error("Distance matrices from different parameters are not the same size")
+            log.error(
+                "Distance matrices from different parameters are not the same size"
+            )
             raise PartitionFinderError
 
     return final_dists
 
+
 def get_distance_matrix(subsets, weights):
 
-    #1. get the parameter lists for each subset
+    # 1. get the parameter lists for each subset
     rates = []  # tree length
     freqs = []  # amino acid or base frequencies
     model = []  # model parameters e.g. A<->C
-    alpha = []  #alpha parameter of the gamma distribution of rates across sites
+    alpha = []  # alpha parameter of the gamma distribution of rates across sites
 
     for s in subsets:
         param_dict = s.get_param_values()
@@ -119,9 +126,9 @@ def get_distance_matrix(subsets, weights):
 
     return final_dists
 
-def get_N_closest_subsets(subsets, cfg, N, distance_matrix = np.matrix([])):
-    """Find the N most similar groups of subsets in a scheme
-    """
+
+def get_N_closest_subsets(subsets, cfg, N, distance_matrix=np.matrix([])):
+    """Find the N most similar groups of subsets in a scheme"""
 
     if not distance_matrix.any():
         distance_matrix = get_distance_matrix(subsets, cfg.cluster_weights)
@@ -129,14 +136,12 @@ def get_N_closest_subsets(subsets, cfg, N, distance_matrix = np.matrix([])):
     return ranked_subset_groupings
 
 
-
-def get_closest_subset(sub, subsets, cfg, distance_matrix = np.matrix([])):
-    """Find the most similar subsets to the focal subset 'sub'
-    """
+def get_closest_subset(sub, subsets, cfg, distance_matrix=np.matrix([])):
+    """Find the most similar subsets to the focal subset 'sub'"""
     if not distance_matrix.any():
         distance_matrix = get_distance_matrix(subsets, cfg.cluster_weights)
         distance_matrix = scipy.spatial.distance.squareform(distance_matrix)
-        
+
     try:
         col = subsets.index(sub)
     except:
@@ -151,15 +156,18 @@ def get_closest_subset(sub, subsets, cfg, distance_matrix = np.matrix([])):
 
     closest_subset = subsets[closest_index]
 
-    return([sub, closest_subset])
+    return [sub, closest_subset]
 
-def make_clustered_scheme(start_scheme, scheme_name, subsets_to_cluster, merged_sub, cfg):
+
+def make_clustered_scheme(
+    start_scheme, scheme_name, subsets_to_cluster, merged_sub, cfg
+):
 
     # 1. Then we define a new scheme with those merged subsets
     new_subsets = start_scheme.subsets - set(subsets_to_cluster)
     new_subsets.add(merged_sub)
 
-    #3. Create the clustered scheme
+    # 3. Create the clustered scheme
     final_scheme = scheme.Scheme(cfg, str(scheme_name), new_subsets)
 
     return final_scheme
@@ -174,7 +182,7 @@ def make_split_scheme(start_scheme, scheme_name, subset_to_split, split_subsets,
     for s in split_subsets:
         new_subsets.add(s)
 
-    #3. Create the clustered scheme
+    # 3. Create the clustered scheme
     final_scheme = scheme.Scheme(cfg, str(scheme_name), new_subsets)
 
     return final_scheme
@@ -192,14 +200,13 @@ def get_nearest_neighbour_scheme(start_scheme, scheme_name, cfg):
     subsets = [s for s in start_scheme.subsets]
     closest_subsets = get_N_closest_subsets(subsets, cfg, 1)[0]
 
-    merged_sub = subset_ops.merge_subsets(closest_subsets) 
+    merged_sub = subset_ops.merge_subsets(closest_subsets)
 
     scheme = make_clustered_scheme(
-        start_scheme, scheme_name, closest_subsets, merged_sub, cfg)
+        start_scheme, scheme_name, closest_subsets, merged_sub, cfg
+    )
 
     return scheme
-
-
 
 
 def update_c_matrix(c_matrix, sub_tuples, subsets, diffs):
@@ -215,9 +222,10 @@ def update_c_matrix(c_matrix, sub_tuples, subsets, diffs):
         old_subs = t[1]
         i = subsets.index(old_subs[0])
         j = subsets.index(old_subs[1])
-        c_matrix[i,j] = c_matrix[j,i] = diff
+        c_matrix[i, j] = c_matrix[j, i] = diff
 
     return c_matrix
+
 
 def get_best_pair(c_matrix, best_change, subsets):
 
@@ -228,7 +236,7 @@ def get_best_pair(c_matrix, best_change, subsets):
         c_matrix = scipy.spatial.distance.squareform(c_matrix)
         log.debug("C matrix: %s", str(c_matrix))
 
-    l = np.where(c_matrix==best_change)
+    l = np.where(c_matrix == best_change)
 
     log.debug("C matrix dimensions: %s", str(c_matrix.shape))
     log.debug("Number of subsets: %d", len(subsets))
@@ -238,16 +246,17 @@ def get_best_pair(c_matrix, best_change, subsets):
     # so we can be sure that we are on an off-diagonal
     # still, we check and throw an error if there's an issue
     s1 = l[0][0]
-    s2 = l[1][0] 
+    s2 = l[1][0]
 
-    if s1==s2:
+    if s1 == s2:
         log.error("You can't merge a subset with itself, please check.")
         raise PartitionFinderError
 
-    log.debug("Subsets to merge: %s and %s" %(s1, s2))
+    log.debug("Subsets to merge: %s and %s" % (s1, s2))
     sub1 = subsets[s1]
     sub2 = subsets[s2]
     return (sub1, sub2)
+
 
 def reset_c_matrix(c_matrix, remove_list, add_list, subsets):
 
@@ -282,6 +291,7 @@ def reset_c_matrix(c_matrix, remove_list, add_list, subsets):
 
     return c_matrix
 
+
 def reset_subsets(subsets, remove_list, add_list):
 
     log.debug("Updating subset list")
@@ -304,9 +314,7 @@ def get_pairs_todo(closest_pairs, c_matrix, subsets):
     for p in closest_pairs:
         i = subsets.index(p[0])
         j = subsets.index(p[1])
-        if c_matrix[i,j] == np.inf:
+        if c_matrix[i, j] == np.inf:
             pairs_todo.append(p)
 
     return pairs_todo
-
-
