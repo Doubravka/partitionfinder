@@ -724,7 +724,7 @@ class KmeansAnalysis(analysis.Analysis):
 
                         euclid_dist = spatial.distance.pdist(centroid_array)
 
-                        if euclid_dist < best_match or best_match is None:
+                        if best_match is None or euclid_dist < best_match:
                             best_match = euclid_dist
                             closest_sub = sub
 
