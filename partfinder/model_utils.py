@@ -15,8 +15,7 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
-from partfinder.config import the_config
+from partfinder import logtools, config
 
 log = logtools.get_logger()
 
@@ -27,13 +26,13 @@ def get_num_params(modelstring):
     parameters
     """
 
-    m = the_config.available_models.query(
+    m = config.the_config.available_models.query(
         "name=='%s'" % modelstring
     ).matrix_params.values[0]
-    b = the_config.available_models.query(
+    b = config.the_config.available_models.query(
         "name=='%s'" % modelstring
     ).basefreq_params.values[0]
-    r = the_config.available_models.query(
+    r = config.the_config.available_models.query(
         "name=='%s'" % modelstring
     ).ratevar_params.values[0]
 

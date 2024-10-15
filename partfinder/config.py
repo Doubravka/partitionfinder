@@ -113,7 +113,7 @@ class Configuration(object):
                 raise ConfigurationError
 
         # Import the right processor
-        self.processor = __import__(phylogeny_program.lower(), globals())
+        self.processor = __import__(f'partfinder.{phylogeny_program.lower()}', globals(), fromlist=(phylogeny_program.lower()))
 
         # This returns the record layout for the results that we store. It
         # varies depending on the processor, and also DNA vs protein

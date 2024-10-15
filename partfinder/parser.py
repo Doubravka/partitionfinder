@@ -16,6 +16,7 @@
 # and conditions as well.
 
 from partfinder import logtools, config, scheme, subset, subset_ops, model_loader
+from partfinder.util import PartitionFinderError
 
 log = logtools.get_logger()
 
@@ -39,9 +40,6 @@ from pyparsing import (
 
 # Use this for debugging
 # ParserElement.verbose_stacktrace = True
-
-
-from partfinder.util import PartitionFinderError
 
 
 class ParserError(Exception):

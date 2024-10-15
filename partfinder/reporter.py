@@ -17,6 +17,7 @@
 
 from partfinder import logtools
 from partfinder.config import the_config
+from partfinder.model_utils import * 
 
 log = logtools.get_logger()
 

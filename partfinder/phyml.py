@@ -15,13 +15,12 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools
+from partfinder import logtools, util, phyml_models, database
 
 log = logtools.get_logger()
 
 import os
 import sys
-import util
 
 from pyparsing import (
     Word,
@@ -32,8 +31,6 @@ from pyparsing import (
     SkipTo,
 )
 
-import phyml_models as models
-from database import DataRecord, DataLayout
 
 _binary_name = "phyml"
 if sys.platform == "win32":
@@ -44,7 +41,7 @@ _phyml_binary = None
 
 
 def make_data_layout(cfg):
-    return DataLayout()
+    return database.DataLayout()
 
 
 def run_phyml(command):
@@ -135,7 +132,7 @@ def analyse(model, alignment_path, tree_path, branchlengths, cmdline_extras):
 
     # Move it to a new name to stop phyml stomping on different model analyses
     # dupfile(alignment_path, analysis_path)
-    model_params = models.get_model_commandline(model)
+    model_params = phyml_models.get_model_commandline(model)
 
     if branchlengths == "linked":
         # constrain all branchlengths to be equal
@@ -184,7 +181,7 @@ def remove_files(aln_path, model):
     util.delete_files(fnames)
 
 
-class PhymlResult(DataRecord):
+class PhymlResult(database.DataRecord):
     pass
 
 

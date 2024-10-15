@@ -16,12 +16,12 @@
 # and conditions as well.
 
 from partfinder import logtools
+from partfinder.util import PartitionFinderError
 import pandas as pd
 import os
 import collections
 
 log = logtools.get_logger()
-from partfinder.util import PartitionFinderError
 
 _available_lists = [
     "ALL",  # all models, excluding those with base frequencies estimated by ML and protein GTR models

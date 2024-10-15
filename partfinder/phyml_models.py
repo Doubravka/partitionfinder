@@ -16,15 +16,12 @@
 # PartitionFinder implies that you agree with those licences and
 # conditions as well.
 
-from partfinder import logtools
-from util import memoize
-from config import the_config
-from model_utils import model_utils.get_num_params
+from partfinder import logtools, model_utils, util, config
 
 log = logtools.get_logger()
 
 
-@memoize
+@util.memoize
 def get_model_difficulty(modelstring):
     """
     Input a model string like HKY+I+G or LG+G+F, and a guess about how long it
@@ -49,7 +46,7 @@ def get_model_difficulty(modelstring):
     if "X" in elements[1:]:
         difficulty += 4000
 
-    if the_config.datatype == "protein" and "GTR" in modelstring:
+    if config.the_config.datatype == "protein" and "GTR" in modelstring:
         # that's a tough model with 189 free parameters
         difficulty += 10000
 
@@ -64,13 +61,13 @@ def get_model_difficulty(modelstring):
     return total
 
 
-@memoize
+@util.memoize
 def get_model_commandline(modelstring):
     """
     Input a model string, and get the PhyML command line
     """
 
-    commandline = the_config.available_models.query(
+    commandline = config.the_config.available_models.query(
         "name=='%s'" % modelstring
     ).phyml_commandline.values[0]
     return commandline

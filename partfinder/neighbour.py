@@ -15,14 +15,12 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import subset_ops, scheme
+from partfinder import subset_ops, scheme, logtools
 from partfinder.util import PartitionFinderError
 
 import numpy as np
 import scipy.spatial.distance
 import itertools
-
-from partfinder import logtools
 
 log = logtools.get_logger()
 

@@ -16,13 +16,12 @@
 # and conditions as well.
 
 from partfinder import logtools, subset
+from partfinder.util import get_aic, get_aicc, get_bic, PartitionFinderError
 
 log = logtools.get_logger()
 
 import hashlib
 import pickle
-from partfinder.util import get_aic, get_aicc, get_bic, PartitionFinderError
-from scipy.stats import chi2
 
 class AnalysisError(PartitionFinderError):
     pass
