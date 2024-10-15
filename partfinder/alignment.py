@@ -405,7 +405,8 @@ class Alignment(object):
             # up to 100
             shortened = "%s    " % (spec[:99])
             stream.write(shortened)
-            stream.write(sequence.tostring())
+            # TODO is this the best solution?
+            stream.write(str(''.join(map(chr, sequence))))
             stream.write("\n")
 
     def check_state_probs(self, subset, cfg):
