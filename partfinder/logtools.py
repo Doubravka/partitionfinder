@@ -1,8 +1,8 @@
+import inspect
 import logging
 import os
 import re
 import textwrap
-import inspect
 
 _log_depth = 0
 _max_width = 80

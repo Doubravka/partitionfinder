@@ -15,8 +15,8 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from math import sqrt
 from itertools import izip
+from math import sqrt
 
 
 def k_subsets_i(n, k):

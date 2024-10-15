@@ -1,5 +1,7 @@
-import pytest
 import os
+
+import pytest
+
 from partfinder import morph_tiger
 
 set_parts = [

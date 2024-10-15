@@ -15,17 +15,17 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, entropy, subset_ops, util, morph_tiger
+from partfinder import entropy, logtools, morph_tiger, subset_ops, util
 from partfinder.alignment import SubsetAlignment
 
 log = logtools.get_logger()
 
 import time
+from collections import defaultdict
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import scale
-from collections import defaultdict
 
 
 # You can run kmeans in parallel, specify n_jobs as -1 and it will run

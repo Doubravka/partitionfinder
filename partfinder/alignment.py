@@ -21,11 +21,13 @@
     http://www.atgc-montpellier.fr/phyml/usersguide.php?type=command
 
 """
-from partfinder import logtools, util
 import os
-import numpy as np
 from io import StringIO
 from itertools import chain
+
+import numpy as np
+
+from partfinder import logtools, util
 
 log = logtools.get_logger()
 

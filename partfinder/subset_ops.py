@@ -16,7 +16,7 @@
 # and conditions as well.
 
 from partfinder import logtools, subset
-from partfinder.util import get_aic, get_aicc, get_bic, PartitionFinderError
+from partfinder.util import PartitionFinderError, get_aic, get_aicc, get_bic
 
 log = logtools.get_logger()
 

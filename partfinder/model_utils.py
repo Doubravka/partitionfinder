@@ -15,7 +15,7 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, config
+from partfinder import config, logtools
 
 log = logtools.get_logger()
 

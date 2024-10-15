@@ -15,11 +15,13 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
+import collections
+import os
+
+import pandas as pd
+
 from partfinder import logtools
 from partfinder.util import PartitionFinderError
-import pandas as pd
-import os
-import collections
 
 log = logtools.get_logger()
 

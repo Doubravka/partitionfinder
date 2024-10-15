@@ -17,8 +17,8 @@
 # and conditions as well.
 
 import sys
-from partfinder import dependencies
-from partfinder import main
+
+from partfinder import dependencies, main
 
 if __name__ == "__main__":
     # Well behaved unix programs exits with 0 on success...

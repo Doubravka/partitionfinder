@@ -15,27 +15,27 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, config, scheme, subset, subset_ops, model_loader
+from partfinder import config, logtools, model_loader, scheme, subset, subset_ops
 from partfinder.util import PartitionFinderError
 
 log = logtools.get_logger()
 
 from pyparsing import (
-    Word,
-    OneOrMore,
-    alphas,
-    nums,
-    Suppress,
-    Optional,
     Group,
-    stringEnd,
+    Keyword,
+    OneOrMore,
+    Optional,
+    ParseException,
+    Suppress,
+    Word,
+    alphas,
+    col,
     delimitedList,
-    pythonStyleComment,
     line,
     lineno,
-    col,
-    Keyword,
-    ParseException,
+    nums,
+    pythonStyleComment,
+    stringEnd,
 )
 
 # Use this for debugging

@@ -1,7 +1,9 @@
 import os
+
+import numpy
+
 from partfinder import raxml
 from partfinder.config import Configuration
-import numpy
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 MISC_PATH = os.path.join(HERE, "misc")

@@ -1,9 +1,11 @@
 """New tests for PF2"""
 
-import os
 import inspect
-from partfinder import main
+import os
+
 import pytest
+
+from partfinder import main
 from partfinder.util import PartitionFinderError
 
 HERE = os.path.abspath(os.path.dirname(__file__))

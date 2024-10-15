@@ -16,20 +16,21 @@
 # and conditions as well.
 
 from partfinder import logtools, subset_ops
-from partfinder.alignment import SubsetAlignment, Alignment
+from partfinder.alignment import Alignment, SubsetAlignment
 
 log = logtools.get_logger()
 
 import os
+
 import numpy
 
 from partfinder.util import (
     ParseError,
     PartitionFinderError,
-    remove_runID_files,
     get_aic,
     get_aicc,
     get_bic,
+    remove_runID_files,
 )
 
 FRESH, PREPARED, DONE = range(3)

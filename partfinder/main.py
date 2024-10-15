@@ -18,20 +18,21 @@
 __VERSION__ = "2.1.1"
 
 import logging
-import sys
 import shlex
-from partfinder import logtools, config, analysis_method, util, reporter, progress
+import sys
+
+from partfinder import analysis_method, config, logtools, progress, reporter, util
 
 logging.basicConfig(
     format="%(levelname)-8s | %(asctime)s | %(message)s", level=logging.INFO
 )
 
 log = logtools.get_logger()
+import datetime
 from optparse import OptionParser
 
 # We import everything here as it forces all of debug regions to be loaded
 
-import datetime
 
 
 def debug_arg_callback(option, opt, value, theparser):
@@ -389,7 +390,8 @@ def run_analysis(cfg, options):
 
 
 def profile_analysis(cfg, options):
-    import cProfile, pstats
+    import cProfile
+    import pstats
 
     cProfile.runctx(
         "run_analysis(cfg, options)", globals(), locals(), filename="profile.output"

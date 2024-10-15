@@ -1,7 +1,8 @@
 import pytest
-from partfinder.subset import Subset
-from partfinder.scheme import Scheme, SchemeError
+
 from partfinder.config import Configuration
+from partfinder.scheme import Scheme, SchemeError
+from partfinder.subset import Subset
 
 # TODO: put all of the subset splitting joining tests in here
 

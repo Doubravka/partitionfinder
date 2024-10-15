@@ -1,7 +1,9 @@
 import os
-import pytest
-from partfinder import main, util, analysis, config
 from zipfile import ZipFile
+
+import pytest
+
+from partfinder import analysis, config, main, util
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 

@@ -1,4 +1,5 @@
 import os
+
 from partfinder import main
 
 HERE = os.path.abspath(os.path.dirname(__file__))

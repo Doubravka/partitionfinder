@@ -15,25 +15,18 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, util, phyml_models, database
-
 # TODO remove
+from partfinder import database, logtools
+from partfinder import phyml_models
 from partfinder import phyml_models as models
+from partfinder import util
 
 log = logtools.get_logger()
 
 import os
 import sys
 
-from pyparsing import (
-    Word,
-    Literal,
-    nums,
-    Suppress,
-    ParseException,
-    SkipTo,
-)
-
+from pyparsing import Literal, ParseException, SkipTo, Suppress, Word, nums
 
 _binary_name = "phyml"
 if sys.platform == "win32":

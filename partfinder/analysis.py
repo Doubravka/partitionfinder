@@ -16,23 +16,23 @@
 # and conditions as well.
 
 from partfinder import (
-    logtools,
+    alignment,
     database,
+    logtools,
+    raxml,
+    results,
     scheme,
     subset_ops,
-    alignment,
     threadpool,
-    results,
     util,
-    raxml,
 )
 from partfinder.config import the_config
 
 log = logtools.get_logger()
+import collections
 import os
 import shutil
 import threading
-import collections
 from shutil import copyfile
 
 

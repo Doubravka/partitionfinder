@@ -1,6 +1,8 @@
 import os
+
 import pytest
-from partfinder import main, util, analysis, config
+
+from partfinder import analysis, config, main, util
 
 # Get the Errors all into the local space
 from partfinder.config import ConfigurationError

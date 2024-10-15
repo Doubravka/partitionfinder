@@ -15,30 +15,30 @@
 # conditions, using PartitionFinder implies that you agree with those licences
 # and conditions as well.
 
-from partfinder import logtools, util, database, reporter, raxml_models
-
 # TODO remove
+from partfinder import database, logtools
+from partfinder import raxml_models
 from partfinder import raxml_models as models
-
+from partfinder import reporter, util
 from partfinder.config import the_config
 
 log = logtools.get_logger()
 
+import fnmatch
 import os
 import sys
-import fnmatch
 
 from pyparsing import (
-    Word,
     Literal,
-    nums,
-    Suppress,
-    ParseException,
-    SkipTo,
     OneOrMore,
-    Regex,
-    restOfLine,
     Optional,
+    ParseException,
+    Regex,
+    SkipTo,
+    Suppress,
+    Word,
+    nums,
+    restOfLine,
 )
 
 _protein_letters = "ARNDCQEGHILKMFPSTWYV"

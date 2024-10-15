@@ -1,14 +1,16 @@
-import pytest
 import os
+
+import pytest
+
 from partfinder import (
-    main,
-    util,
-    scheme,
+    alignment,
     analysis_method,
     config,
-    alignment,
-    results,
+    main,
     reporter,
+    results,
+    scheme,
+    util,
 )
 
 

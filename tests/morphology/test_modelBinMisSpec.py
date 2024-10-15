@@ -1,15 +1,17 @@
-import pytest
-import shlex
 import os
+import shlex
+
+import pytest
+
 from partfinder import (
-    main,
-    util,
-    scheme,
+    alignment,
     analysis_method,
     config,
-    alignment,
-    results,
+    main,
     reporter,
+    results,
+    scheme,
+    util,
 )
 
 

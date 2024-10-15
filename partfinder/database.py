@@ -20,9 +20,10 @@ from partfinder import logtools
 log = logtools.get_logger()
 
 import os
+from itertools import combinations
+
 import numpy
 import tables
-from itertools import combinations
 
 int_type = numpy.int32
 float_type = numpy.float32

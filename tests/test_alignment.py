@@ -1,8 +1,10 @@
-import pytest
 import fnmatch
 import os
+
+import pytest
 from StringIO import StringIO
-from partfinder.alignment import Alignment, SubsetAlignment, AlignmentError
+
+from partfinder.alignment import Alignment, AlignmentError, SubsetAlignment
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 MISC_PATH = os.path.join(HERE, "misc")

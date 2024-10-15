@@ -2,10 +2,12 @@
 
 # TODO This could be automated in the same way "full_analysis'
 
-import os
 import inspect
+import os
+
 import pytest
-from partfinder import main, util, analysis, config, alignment
+
+from partfinder import alignment, analysis, config, main, util
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 

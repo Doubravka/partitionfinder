@@ -16,7 +16,7 @@
 # PartitionFinder implies that you agree with those licences and
 # conditions as well.
 
-from partfinder import logtools, model_utils, util, config
+from partfinder import config, logtools, model_utils, util
 
 # TODO remove
 from partfinder.model_utils import get_num_params

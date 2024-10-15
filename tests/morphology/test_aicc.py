@@ -1,6 +1,8 @@
-import pytest
 import os
-from partfinder import main, util, scheme, analysis_method, config, alignment
+
+import pytest
+
+from partfinder import alignment, analysis_method, config, main, scheme, util
 
 
 def test_aicc():

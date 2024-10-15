@@ -22,9 +22,9 @@ from partfinder import logtools
 
 log = logtools.get_logger()
 
+import multiprocessing
 import threading
 from time import sleep
-import multiprocessing
 
 _cpus = None
 

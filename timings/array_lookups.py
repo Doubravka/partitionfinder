@@ -1,14 +1,14 @@
 # array lookups
 
-import numpy as np
-import random
-import sklearn.metrics.pairwise
-import scipy.spatial.distance
 import heapq
+import random
 from bisect import insort
 from itertools import islice
-from scipy.spatial import KDTree
 
+import numpy as np
+import scipy.spatial.distance
+import sklearn.metrics.pairwise
+from scipy.spatial import KDTree
 
 N = 1000
 r = np.array([random.randrange(1, 1000) for _ in range(0, 10000)])

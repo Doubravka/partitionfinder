@@ -1,8 +1,9 @@
+import sys
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Build import cythonize
+
 import numpy
-import sys
+from Cython.Build import cythonize
 
 # This file is only used for compiling tigger, so let's just make it do this
 # by default. This only works for Mac right now.

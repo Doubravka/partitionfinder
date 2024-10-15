@@ -1,4 +1,4 @@
-from partfinder.submodels import get_submodels, count_all_schemes
+from partfinder.submodels import count_all_schemes, get_submodels
 
 
 def test_consistency():

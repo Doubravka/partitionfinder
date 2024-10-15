@@ -19,11 +19,11 @@ from partfinder import logtools
 
 log = logtools.get_logger()
 
-import os
 import fnmatch
-import subprocess
+import os
 import shlex
 import shutil
+import subprocess
 from math import log as logarithm
 
 
